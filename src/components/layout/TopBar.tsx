@@ -21,7 +21,7 @@ export default function TopBar() {
               className="flex items-center gap-1.5 hover:text-white transition"
             >
               <Phone className="w-3.5 h-3.5 text-blue-400" />
-              <span>+1 (800) 123-4567</span>
+              <span> 123-4567</span>
             </a>
             <span className="text-gray-700">|</span>
             <a
@@ -29,7 +29,7 @@ export default function TopBar() {
               className="flex items-center gap-1.5 hover:text-white transition"
             >
               <Mail className="w-3.5 h-3.5 text-blue-400" />
-              <span>support@enjoymart.com</span>
+              <span>stevkhun@gmail.com</span>
             </a>
           </div>
 
@@ -79,9 +79,8 @@ export default function TopBar() {
                       setCurrency(curr);
                       setIsCurrencyOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-blue-600 transition cursor-pointer ${
-                      currency === curr ? "font-bold text-blue-600" : ""
-                    }`}
+                    className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-blue-600 transition cursor-pointer ${currency === curr ? "font-bold text-blue-600" : ""
+                      }`}
                   >
                     {curr}
                   </button>
@@ -113,9 +112,8 @@ export default function TopBar() {
                       setLanguage(lang);
                       setIsLangOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-blue-600 transition cursor-pointer ${
-                      language === lang ? "font-bold text-blue-600" : ""
-                    }`}
+                    className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-blue-600 transition cursor-pointer ${language === lang ? "font-bold text-blue-600" : ""
+                      }`}
                   >
                     {lang}
                   </button>
