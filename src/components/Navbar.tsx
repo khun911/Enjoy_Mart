@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -9,12 +9,21 @@ import {
   Heart,
   ShoppingCart,
   X,
-  Package,
+  Package as PackageIcon,
   Settings,
   LogOut,
   Sparkles,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+
+const emptySubscribe = () => () => {};
+function useIsClient() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+}
 
 // Sample searchable product catalog data
 const searchableProducts = [
@@ -78,6 +87,7 @@ const searchableProducts = [
 
 export default function Navbar() {
   const { totalItems, setIsCartOpen, addToCart } = useCart();
+  const isClient = useIsClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
@@ -168,7 +178,7 @@ export default function Navbar() {
 
           {/* Autocomplete Dropdown */}
           {isSearchFocused && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50">
               {searchQuery.trim() === "" ? (
                 /* Trending Searches Data */
                 <div className="p-4 space-y-3">
@@ -187,11 +197,12 @@ export default function Navbar() {
                     ].map((term) => (
                       <button
                         key={term}
+                        type="button"
                         onClick={() => {
                           setSearchQuery(term);
                           setIsSearchFocused(true);
                         }}
-                        className="text-xs px-3 py-1.5 bg-gray-50 hover:bg-blue-50 hover:text-blue-600 text-gray-700 rounded-lg transition"
+                        className="text-xs px-3 py-1.5 bg-gray-50 hover:bg-blue-50 hover:text-blue-600 text-gray-700 rounded-lg transition cursor-pointer"
                       >
                         {term}
                       </button>
@@ -232,6 +243,7 @@ export default function Navbar() {
                           ${product.price}
                         </span>
                         <button
+                          type="button"
                           onClick={() => {
                             addToCart({
                               id: product.id,
@@ -242,7 +254,7 @@ export default function Navbar() {
                             });
                             setIsSearchFocused(false);
                           }}
-                          className="px-2.5 py-1 bg-blue-600 text-white rounded-lg text-[11px] font-bold hover:bg-blue-700 shadow-2xs"
+                          className="px-2.5 py-1 bg-blue-600 text-white rounded-lg text-[11px] font-bold hover:bg-blue-700 shadow-xs cursor-pointer"
                         >
                           Add
                         </button>
@@ -264,6 +276,7 @@ export default function Navbar() {
           {/* Account Menu with Real Profile Data */}
           <div ref={accountRef} className="relative">
             <button
+              type="button"
               onClick={() => setIsAccountOpen(!isAccountOpen)}
               className="flex flex-col items-center group text-gray-700 hover:text-blue-600 transition cursor-pointer"
             >
@@ -275,7 +288,7 @@ export default function Navbar() {
 
             {/* Account Popover */}
             {isAccountOpen && (
-              <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 text-xs animate-in fade-in slide-in-from-top-1">
+              <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 text-xs">
                 {/* User Info Header */}
                 <div className="px-4 pb-3 border-b border-gray-100">
                   <div className="font-bold text-gray-900 text-sm">khun911</div>
@@ -294,7 +307,7 @@ export default function Navbar() {
                     onClick={() => setIsAccountOpen(false)}
                     className="flex items-center gap-2.5 px-4 py-2 hover:bg-blue-50 text-gray-700 hover:text-blue-600 font-medium transition"
                   >
-                    <Package className="w-4 h-4 text-gray-400" />
+                    <PackageIcon className="w-4 h-4 text-gray-400" />
                     <span>My Orders</span>
                   </Link>
                   <Link
@@ -306,7 +319,7 @@ export default function Navbar() {
                       <Heart className="w-4 h-4 text-gray-400" />
                       <span>Saved Wishlist</span>
                     </div>
-                    <span className="bg-blue-100 text-blue-600 text-[10px] font-bold px-1.5 py-0.2 rounded-full">
+                    <span className="bg-blue-100 text-blue-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                       {wishlistCount}
                     </span>
                   </Link>
@@ -322,8 +335,9 @@ export default function Navbar() {
 
                 <div className="pt-2 border-t border-gray-100 px-4">
                   <button
+                    type="button"
                     onClick={() => setIsAccountOpen(false)}
-                    className="flex items-center gap-2 text-red-500 hover:text-red-600 font-medium py-1 transition w-full text-left"
+                    className="flex items-center gap-2 text-red-500 hover:text-red-600 font-medium py-1 transition w-full text-left cursor-pointer"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     <span>Sign Out</span>
@@ -336,6 +350,7 @@ export default function Navbar() {
           {/* Wishlist Button with Badge & Notification */}
           <div className="relative">
             <button
+              type="button"
               onClick={() => {
                 setShowWishlistNotification(true);
                 setTimeout(() => setShowWishlistNotification(false), 3000);
@@ -353,7 +368,7 @@ export default function Navbar() {
 
             {/* Wishlist Toast */}
             {showWishlistNotification && (
-              <div className="absolute right-0 mt-2 w-48 bg-gray-900 text-white text-[11px] p-2.5 rounded-xl shadow-xl z-50 animate-in fade-in">
+              <div className="absolute right-0 mt-2 w-48 bg-gray-900 text-white text-[11px] p-2.5 rounded-xl shadow-xl z-50">
                 ❤️ You have {wishlistCount} saved items in your wishlist!
               </div>
             )}
@@ -361,13 +376,14 @@ export default function Navbar() {
 
           {/* Cart Button with Total Items */}
           <button
+            type="button"
             onClick={() => setIsCartOpen(true)}
             className="flex flex-col items-center group text-gray-700 hover:text-blue-600 transition relative cursor-pointer"
           >
             <div className="relative">
               <ShoppingCart className="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition" />
               <span className="absolute -top-1.5 -right-2.5 bg-blue-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
-                {totalItems}
+                {isClient ? totalItems : 0}
               </span>
             </div>
             <span className="text-[11px] font-medium mt-1">Cart</span>
