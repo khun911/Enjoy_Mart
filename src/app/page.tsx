@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import TopBar from "@/components/TopBar";
 import Navbar from "@/components/Navbar";
 import CategoryNav from "@/components/CategoryNav";
 import Sidebar from "@/components/Sidebar";
@@ -16,7 +17,10 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      {/* Top Navbar */}
+      {/* Utility / Announcement TopBar */}
+      <TopBar />
+
+      {/* Main Navbar */}
       <Navbar />
 
       {/* Categories Navigation Bar */}
