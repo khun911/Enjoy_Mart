@@ -31,11 +31,12 @@ export default function CategoryNav({
         {/* Browse Categories Button */}
         <div className="w-64 shrink-0 hidden lg:block">
           <button
+            type="button"
             onClick={toggleSidebar}
             aria-expanded={isSidebarOpen}
             className={`w-full ${
               isSidebarOpen ? "bg-blue-600" : "bg-blue-700"
-            } hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-t-xl flex items-center gap-3 transition-colors shadow-xs`}
+            } hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-t-xl flex items-center gap-3 transition-colors shadow-xs cursor-pointer`}
           >
             <Menu className="w-5 h-5" />
             <span className="text-sm font-semibold tracking-wide">
@@ -46,8 +47,9 @@ export default function CategoryNav({
 
         {/* Mobile categories button */}
         <button
+          type="button"
           onClick={toggleSidebar}
-          className="lg:hidden flex items-center gap-2 bg-blue-600 text-white text-xs font-semibold py-2 px-3 rounded-lg my-2"
+          className="lg:hidden flex items-center gap-2 bg-blue-600 text-white text-xs font-semibold py-2 px-3 rounded-lg my-2 cursor-pointer"
         >
           <Menu className="w-4 h-4" />
           <span>Categories</span>

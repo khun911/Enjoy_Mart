@@ -4,81 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-
-export const featuredProducts = [
-  {
-    id: "fp-1",
-    name: "MacBook Air M3",
-    category: "Electronics",
-    description: "Powerful laptop with M3 chip and all-day battery life",
-    price: 1299,
-    image:
-      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "fp-2",
-    name: "AirPods Pro",
-    category: "Electronics",
-    description: "Wireless earbuds with active noise cancellation",
-    price: 249,
-    image:
-      "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "fp-3",
-    name: "Nike Air Max",
-    category: "Fashion",
-    description: "Comfortable running shoes with breathable design",
-    price: 129,
-    image:
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "fp-4",
-    name: "Leather Jacket",
-    category: "Fashion",
-    description: "Classic premium genuine leather jacket for all seasons",
-    price: 199,
-    image:
-      "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "fp-5",
-    name: "Coffee Maker",
-    category: "Home",
-    description: "Automatic coffee maker with programmable timer",
-    price: 89,
-    image:
-      "https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "fp-6",
-    name: "Wireless Headphones",
-    category: "Electronics",
-    description: "High-quality wireless headphones with noise cancellation",
-    price: 179,
-    image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "fp-7",
-    name: "Smart Watch",
-    category: "Electronics",
-    description: "Fitness tracker with heart rate and sleep monitor",
-    price: 299,
-    image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "fp-8",
-    name: "Mechanical Keyboard",
-    category: "Electronics",
-    description: "Custom mechanical keyboard with RGB backlighting",
-    price: 149,
-    image:
-      "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=600&q=80",
-  },
-];
+import { featuredProducts } from "@/data/products";
 
 export default function FeaturedProducts() {
   const { addToCart } = useCart();
@@ -108,8 +34,9 @@ export default function FeaturedProducts() {
           {categories.map((cat) => (
             <button
               key={cat}
+              type="button"
               onClick={() => setActiveFilter(cat)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                 activeFilter === cat
                   ? "bg-blue-600 text-white shadow-xs"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -162,6 +89,7 @@ export default function FeaturedProducts() {
                 </span>
 
                 <button
+                  type="button"
                   onClick={() =>
                     addToCart({
                       id: product.id,
@@ -171,7 +99,7 @@ export default function FeaturedProducts() {
                       category: product.category,
                     })
                   }
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow-md hover:shadow-blue-500/20 active:scale-95 transition-all duration-200"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow-md hover:shadow-blue-500/20 active:scale-95 transition-all duration-200 cursor-pointer"
                 >
                   <ShoppingCart className="w-3.5 h-3.5" />
                   <span>Add to Cart</span>

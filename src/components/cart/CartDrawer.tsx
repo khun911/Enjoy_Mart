@@ -38,8 +38,9 @@ export default function CartDrawer() {
               </span>
             </div>
             <button
+              type="button"
               onClick={() => setIsCartOpen(false)}
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition"
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -59,8 +60,9 @@ export default function CartDrawer() {
                   Looks like you haven&apos;t added any items yet.
                 </p>
                 <button
+                  type="button"
                   onClick={() => setIsCartOpen(false)}
-                  className="mt-5 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition"
+                  className="mt-5 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition cursor-pointer"
                 >
                   Start Shopping
                 </button>
@@ -97,15 +99,17 @@ export default function CartDrawer() {
                   {/* Quantity */}
                   <div className="flex flex-col items-end gap-2">
                     <button
+                      type="button"
                       onClick={() => removeFromCart(item.id)}
-                      className="text-gray-400 hover:text-red-500 transition"
+                      className="text-gray-400 hover:text-red-500 transition cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                     <div className="flex items-center border border-gray-200 rounded-lg bg-white">
                       <button
+                        type="button"
                         onClick={() => updateQuantity(item.id, -1)}
-                        className="p-1 text-gray-500 hover:bg-gray-100 rounded-l-md"
+                        className="p-1 text-gray-500 hover:bg-gray-100 rounded-l-md cursor-pointer"
                       >
                         <Minus className="w-3 h-3" />
                       </button>
@@ -113,8 +117,9 @@ export default function CartDrawer() {
                         {item.quantity}
                       </span>
                       <button
+                        type="button"
                         onClick={() => updateQuantity(item.id, 1)}
-                        className="p-1 text-gray-500 hover:bg-gray-100 rounded-r-md"
+                        className="p-1 text-gray-500 hover:bg-gray-100 rounded-r-md cursor-pointer"
                       >
                         <Plus className="w-3 h-3" />
                       </button>
@@ -135,12 +140,16 @@ export default function CartDrawer() {
               <p className="text-xs text-gray-500">
                 Taxes and shipping calculated at checkout.
               </p>
-              <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold shadow-sm transition active:scale-[0.99]">
+              <button
+                type="button"
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold shadow-sm transition active:scale-[0.99] cursor-pointer"
+              >
                 Proceed to Checkout
               </button>
               <button
+                type="button"
                 onClick={clearCart}
-                className="w-full py-2 text-xs text-gray-500 hover:text-red-500 font-medium transition text-center"
+                className="w-full py-2 text-xs text-gray-500 hover:text-red-500 font-medium transition text-center cursor-pointer"
               >
                 Clear Cart
               </button>

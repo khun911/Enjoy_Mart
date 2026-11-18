@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useSyncExternalStore } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -15,75 +15,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-
-const emptySubscribe = () => () => {};
-function useIsClient() {
-  return useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false
-  );
-}
-
-// Sample searchable product catalog data
-const searchableProducts = [
-  {
-    id: "fp-1",
-    name: "MacBook Air M3",
-    category: "Electronics",
-    price: 1299,
-    image:
-      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=200&q=80",
-  },
-  {
-    id: "fp-2",
-    name: "AirPods Pro 2nd Gen",
-    category: "Electronics",
-    price: 249,
-    image:
-      "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?auto=format&fit=crop&w=200&q=80",
-  },
-  {
-    id: "fp-3",
-    name: "Nike Air Max 270",
-    category: "Fashion",
-    price: 129,
-    image:
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=200&q=80",
-  },
-  {
-    id: "fp-4",
-    name: "Premium Leather Jacket",
-    category: "Fashion",
-    price: 199,
-    image:
-      "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=200&q=80",
-  },
-  {
-    id: "fp-5",
-    name: "Espresso Coffee Maker",
-    category: "Home & Living",
-    price: 89,
-    image:
-      "https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?auto=format&fit=crop&w=200&q=80",
-  },
-  {
-    id: "fp-6",
-    name: "Sony Wireless Noise-Cancelling Headphones",
-    category: "Electronics",
-    price: 179,
-    image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=200&q=80",
-  },
-  {
-    id: "fp-7",
-    name: "Apple Watch Series 9",
-    category: "Electronics",
-    price: 299,
-    image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=200&q=80",
-  },
-];
+import { useIsClient } from "@/hooks/useIsClient";
+import { allSearchableProducts } from "@/data/products";
 
 export default function Navbar() {
   const { totalItems, setIsCartOpen, addToCart } = useCart();
@@ -99,7 +32,7 @@ export default function Navbar() {
 
   // Filter products by search query
   const filteredProducts = searchQuery.trim()
-    ? searchableProducts.filter(
+    ? allSearchableProducts.filter(
         (p) =>
           p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           p.category.toLowerCase().includes(searchQuery.toLowerCase())

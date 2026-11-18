@@ -59,11 +59,12 @@ export default function TopBar() {
           {/* Currency Dropdown */}
           <div className="relative">
             <button
+              type="button"
               onClick={() => {
                 setIsCurrencyOpen(!isCurrencyOpen);
                 setIsLangOpen(false);
               }}
-              className="flex items-center gap-1 hover:text-white transition text-gray-300"
+              className="flex items-center gap-1 hover:text-white transition text-gray-300 cursor-pointer"
             >
               <span>{currency}</span>
               <ChevronDown className="w-3 h-3 text-gray-400" />
@@ -73,11 +74,12 @@ export default function TopBar() {
                 {["USD ($)", "EUR (€)", "GBP (£)", "CAD ($)"].map((curr) => (
                   <button
                     key={curr}
+                    type="button"
                     onClick={() => {
                       setCurrency(curr);
                       setIsCurrencyOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-blue-600 transition ${
+                    className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-blue-600 transition cursor-pointer ${
                       currency === curr ? "font-bold text-blue-600" : ""
                     }`}
                   >
@@ -91,11 +93,12 @@ export default function TopBar() {
           {/* Language Dropdown */}
           <div className="relative">
             <button
+              type="button"
               onClick={() => {
                 setIsLangOpen(!isLangOpen);
                 setIsCurrencyOpen(false);
               }}
-              className="flex items-center gap-1 hover:text-white transition text-gray-300"
+              className="flex items-center gap-1 hover:text-white transition text-gray-300 cursor-pointer"
             >
               <span>{language}</span>
               <ChevronDown className="w-3 h-3 text-gray-400" />
@@ -105,11 +108,12 @@ export default function TopBar() {
                 {["English", "Español", "Français", "Deutsch"].map((lang) => (
                   <button
                     key={lang}
+                    type="button"
                     onClick={() => {
                       setLanguage(lang);
                       setIsLangOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-blue-600 transition ${
+                    className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-blue-600 transition cursor-pointer ${
                       language === lang ? "font-bold text-blue-600" : ""
                     }`}
                   >

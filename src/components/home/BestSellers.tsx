@@ -5,59 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star, ShoppingCart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-
-export const bestSellers = [
-  {
-    id: "bs-1",
-    name: "Wireless Earbuds",
-    image:
-      "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=400&q=80",
-    rating: 5,
-    reviews: 128,
-    price: 29.99,
-    category: "Electronics",
-  },
-  {
-    id: "bs-2",
-    name: "Smart Watch",
-    image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80",
-    rating: 5,
-    reviews: 96,
-    price: 49.99,
-    category: "Electronics",
-  },
-  {
-    id: "bs-3",
-    name: "Laptop Backpack",
-    image:
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=400&q=80",
-    rating: 5,
-    reviews: 78,
-    price: 39.99,
-    category: "Fashion",
-  },
-  {
-    id: "bs-4",
-    name: "Running Shoes",
-    image:
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80",
-    rating: 5,
-    reviews: 64,
-    price: 59.99,
-    category: "Sports",
-  },
-  {
-    id: "bs-5",
-    name: "Digital Camera",
-    image:
-      "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=400&q=80",
-    rating: 5,
-    reviews: 112,
-    price: 199.99,
-    category: "Electronics",
-  },
-];
+import { bestSellerProducts } from "@/data/products";
 
 export default function BestSellers() {
   const { addToCart } = useCart();
@@ -79,7 +27,7 @@ export default function BestSellers() {
 
       {/* Grid of Best Sellers */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5">
-        {bestSellers.map((product) => (
+        {bestSellerProducts.map((product) => (
           <div
             key={product.id}
             className="bg-white border border-gray-100 rounded-2xl p-4 flex flex-col justify-between hover:border-blue-200 hover:shadow-md transition-all duration-200 group"
@@ -103,7 +51,7 @@ export default function BestSellers() {
               {/* Star Rating */}
               <div className="flex items-center gap-1">
                 <div className="flex items-center text-amber-400">
-                  {[...Array(product.rating)].map((_, i) => (
+                  {[...Array(product.rating || 5)].map((_, i) => (
                     <Star
                       key={i}
                       className="w-3.5 h-3.5 fill-amber-400 stroke-amber-400"
@@ -111,7 +59,7 @@ export default function BestSellers() {
                   ))}
                 </div>
                 <span className="text-[11px] text-gray-400 font-medium">
-                  ({product.reviews})
+                  ({product.reviews || 0})
                 </span>
               </div>
             </div>
@@ -122,6 +70,7 @@ export default function BestSellers() {
                 ${product.price.toFixed(2)}
               </span>
               <button
+                type="button"
                 onClick={() =>
                   addToCart({
                     id: product.id,
@@ -131,7 +80,7 @@ export default function BestSellers() {
                     category: product.category,
                   })
                 }
-                className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors duration-200 shadow-2xs active:scale-95"
+                className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors duration-200 shadow-xs active:scale-95 cursor-pointer"
                 aria-label={`Add ${product.name} to cart`}
               >
                 <ShoppingCart className="w-4 h-4" />

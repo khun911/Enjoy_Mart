@@ -1,16 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import TopBar from "@/components/TopBar";
-import Navbar from "@/components/Navbar";
-import CategoryNav from "@/components/CategoryNav";
-import Sidebar from "@/components/Sidebar";
-import Hero from "@/components/Hero";
-import TrustBadges from "@/components/TrustBadges";
-import ShopByCategory from "@/components/ShopByCategory";
-import BestSellers from "@/components/BestSellers";
-import FeaturedProducts from "@/components/FeaturedProducts";
-import Footer from "@/components/Footer";
+// Layout Components
+import TopBar from "@/components/layout/TopBar";
+import Navbar from "@/components/layout/Navbar";
+import CategoryNav from "@/components/layout/CategoryNav";
+import Sidebar from "@/components/layout/Sidebar";
+import Footer from "@/components/layout/Footer";
+
+// Home Page Section Components
+import Hero from "@/components/home/Hero";
+import TrustBadges from "@/components/home/TrustBadges";
+import ShopByCategory from "@/components/home/ShopByCategory";
+import BestSellers from "@/components/home/BestSellers";
+import FeaturedProducts from "@/components/home/FeaturedProducts";
 
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);

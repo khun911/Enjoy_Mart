@@ -12,7 +12,6 @@ const slides = [
       "Find the best products at the best prices. Fast delivery. Easy returns.",
     buttonText: "Shop Now",
     buttonHref: "#products",
-    // Premium tech showcase image
     image:
       "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
     imageAlt: "Premium Headphones and Gadgets",
@@ -93,8 +92,9 @@ export default function Hero() {
         {slides.map((_, idx) => (
           <button
             key={idx}
+            type="button"
             onClick={() => setActiveSlide(idx)}
-            className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
+            className={`w-2.5 h-2.5 rounded-full transition-all duration-200 cursor-pointer ${
               activeSlide === idx
                 ? "bg-blue-600 w-6"
                 : "bg-gray-300 hover:bg-gray-400"
