@@ -1,0 +1,57 @@
+"use client";
+
+import React from "react";
+import { Truck, ShieldCheck, RotateCcw, Headphones } from "lucide-react";
+
+const badges = [
+  {
+    icon: Truck,
+    title: "Free Shipping",
+    subtitle: "On orders over $50",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Secure Payments",
+    subtitle: "100% protected",
+  },
+  {
+    icon: RotateCcw,
+    title: "Easy Returns",
+    subtitle: "30-day return policy",
+  },
+  {
+    icon: Headphones,
+    title: "24/7 Support",
+    subtitle: "Always here to help",
+  },
+];
+
+export default function TrustBadges() {
+  return (
+    <div className="w-full bg-white border border-gray-200/80 rounded-2xl py-6 px-6 sm:px-8 shadow-xs">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+        {badges.map((badge, idx) => {
+          const Icon = badge.icon;
+          return (
+            <div
+              key={idx}
+              className="flex items-center gap-4 group"
+            >
+              <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-200">
+                <Icon className="w-6 h-6" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-gray-900 leading-tight">
+                  {badge.title}
+                </span>
+                <span className="text-xs text-gray-500 mt-0.5">
+                  {badge.subtitle}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
