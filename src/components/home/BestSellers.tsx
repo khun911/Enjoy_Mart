@@ -6,9 +6,11 @@ import Link from "next/link";
 import { Star, ShoppingCart, Heart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { bestSellerProducts } from "@/data/products";
 
 export default function BestSellers() {
+  const { t } = useLanguage();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
@@ -17,13 +19,13 @@ export default function BestSellers() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-          Best Sellers
+          {t("bestSellersTitle")}
         </h2>
         <Link
           href="#products"
           className="text-xs sm:text-sm font-semibold text-blue-600 hover:text-blue-700 transition"
         >
-          View All
+          {t("viewAll")}
         </Link>
       </div>
 

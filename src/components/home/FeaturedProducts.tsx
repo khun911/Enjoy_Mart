@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ShoppingCart, Heart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { featuredProducts } from "@/data/products";
 
 const categoryMap: Record<string, string> = {
@@ -28,6 +29,7 @@ export default function FeaturedProducts({
   selectedCategory = "electronics",
   onSelectCategory,
 }: FeaturedProductsProps) {
+  const { t } = useLanguage();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const [userFilter, setUserFilter] = useState<string | null>(null);
@@ -74,7 +76,7 @@ export default function FeaturedProducts({
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
-            Featured Products
+            {t("featuredProductsTitle")}
           </h2>
           <p className="text-sm text-gray-500 mt-1">
             Curated collection of premium products {activeFilter !== "All" && `in ${activeFilter}`}
@@ -193,7 +195,7 @@ export default function FeaturedProducts({
                     className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow-md hover:shadow-blue-500/20 active:scale-95 transition-all duration-200 cursor-pointer"
                   >
                     <ShoppingCart className="w-3.5 h-3.5" />
-                    <span>Add to Cart</span>
+                    <span>{t("addToCart")}</span>
                   </button>
                 </div>
               </div>

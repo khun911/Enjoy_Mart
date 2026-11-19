@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Menu } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface CategoryNavProps {
   isSidebarOpen?: boolean;
@@ -13,13 +14,13 @@ interface CategoryNavProps {
 }
 
 const navItems = [
-  { name: "Home", action: "home" },
-  { name: "Shop", action: "shop" },
-  { name: "Deals", action: "deals" },
-  { name: "New Arrivals", action: "new-arrivals" },
-  { name: "Best Sellers", action: "best-sellers" },
-  { name: "Track Order", action: "track-order" },
-  { name: "Contact Us", action: "contact" },
+  { name: "Home", key: "home", action: "home" },
+  { name: "Shop", key: "shop", action: "shop" },
+  { name: "Deals", key: "deals", action: "deals" },
+  { name: "New Arrivals", key: "newArrivals", action: "new-arrivals" },
+  { name: "Best Sellers", key: "bestSellers", action: "best-sellers" },
+  { name: "Track Order", key: "trackOrder", action: "track-order" },
+  { name: "Contact Us", key: "contactUs", action: "contact" },
 ];
 
 export default function CategoryNav({
@@ -30,6 +31,7 @@ export default function CategoryNav({
   activeNavTab = "Home",
   onSelectNavTab,
 }: CategoryNavProps) {
+  const { t } = useLanguage();
   const [internalActive, setInternalActive] = useState("Home");
   const activeTab = onSelectNavTab ? activeNavTab : internalActive;
 
@@ -76,7 +78,7 @@ export default function CategoryNav({
           >
             <Menu className="w-5 h-5" />
             <span className="text-sm font-semibold tracking-wide">
-              Browse Categories
+              {t("browseCategories")}
             </span>
           </button>
         </div>
@@ -88,7 +90,7 @@ export default function CategoryNav({
           className="lg:hidden flex items-center gap-2 bg-blue-600 text-white text-xs font-semibold py-2 px-3 rounded-lg my-2 cursor-pointer"
         >
           <Menu className="w-4 h-4" />
-          <span>Categories</span>
+          <span>{t("browseCategories")}</span>
         </button>
 
         {/* Main Navigation Links */}
@@ -106,7 +108,7 @@ export default function CategoryNav({
                     : "text-gray-700 hover:text-blue-600"
                 }`}
               >
-                <span>{item.name}</span>
+                <span>{t(item.key)}</span>
                 {isActive && (
                   <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full animate-in fade-in duration-150" />
                 )}

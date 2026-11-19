@@ -2,31 +2,34 @@
 
 import React from "react";
 import { Truck, ShieldCheck, RotateCcw, Headphones } from "lucide-react";
-
-const badges = [
-  {
-    icon: Truck,
-    title: "Free Shipping",
-    subtitle: "On orders over $50",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Secure Payments",
-    subtitle: "100% protected",
-  },
-  {
-    icon: RotateCcw,
-    title: "Easy Returns",
-    subtitle: "30-day return policy",
-  },
-  {
-    icon: Headphones,
-    title: "24/7 Support",
-    subtitle: "Always here to help",
-  },
-];
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function TrustBadges() {
+  const { t } = useLanguage();
+
+  const badges = [
+    {
+      icon: Truck,
+      title: t("freeShipping"),
+      subtitle: t("freeShippingSub"),
+    },
+    {
+      icon: ShieldCheck,
+      title: t("securePayments"),
+      subtitle: t("securePaymentsSub"),
+    },
+    {
+      icon: RotateCcw,
+      title: t("easyReturns"),
+      subtitle: t("easyReturnsSub"),
+    },
+    {
+      icon: Headphones,
+      title: t("support247"),
+      subtitle: t("support247Sub"),
+    },
+  ];
+
   return (
     <div className="w-full bg-white border border-gray-200/80 rounded-2xl py-6 px-6 sm:px-8 shadow-xs">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">

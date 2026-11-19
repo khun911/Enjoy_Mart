@@ -5,6 +5,19 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ChevronRight, Sparkles } from "lucide-react";
 import { sidebarCategories, SidebarCategoryData } from "@/data/categories";
+import { useLanguage } from "@/context/LanguageContext";
+
+const catIdMap: Record<string, string> = {
+  electronics: "electronics",
+  fashion: "fashion",
+  home: "homeLiving",
+  beauty: "beauty",
+  sports: "sports",
+  toys: "toys",
+  automotive: "automotive",
+  books: "books",
+  health: "health",
+};
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -17,6 +30,7 @@ export default function Sidebar({
   selectedCategory = "electronics",
   onSelectCategory,
 }: SidebarProps) {
+  const { t } = useLanguage();
   const [internalActive, setInternalActive] = useState<string>(selectedCategory);
   const [hoveredCategory, setHoveredCategory] = useState<SidebarCategoryData | null>(null);
 
@@ -65,7 +79,9 @@ export default function Sidebar({
                           : "text-gray-400 group-hover:text-blue-600"
                       }`}
                     />
-                    <span className="truncate">{cat.name}</span>
+                    <span className="truncate">
+                      {catIdMap[cat.id] ? t(catIdMap[cat.id]) : cat.name}
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0 ml-2">
@@ -98,7 +114,7 @@ export default function Sidebar({
             href="#categories"
             className="flex items-center justify-between text-xs font-semibold text-gray-800 hover:text-blue-600 py-1.5 px-2 transition-colors group"
           >
-            <span>View All Categories</span>
+            <span>{t("viewAllCategories")}</span>
             <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:translate-x-1 group-hover:text-blue-600 transition-all" />
           </Link>
         </div>

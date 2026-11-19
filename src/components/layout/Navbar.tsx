@@ -33,29 +33,17 @@ import OrdersModal from "@/components/layout/OrdersModal";
 import AuthModal from "@/components/layout/AuthModal";
 import ClientFeedbackModal from "@/components/feedback/ClientFeedbackModal";
 import AdminFeedbackDashboard from "@/components/admin/AdminFeedbackDashboard";
-
-const LANGUAGES = [
-  { code: "en", name: "English", native: "English (US)", flag: "🇺🇸" },
-  { code: "km", name: "Khmer", native: "ភាសាខ្មែរ", flag: "🇰🇭" },
-  { code: "zh", name: "Chinese", native: "中文 (简体)", flag: "🇨🇳" },
-  { code: "fr", name: "French", native: "Français", flag: "🇫🇷" },
-  { code: "es", name: "Spanish", native: "Español", flag: "🇪🇸" },
-  { code: "de", name: "German", native: "Deutsch", flag: "🇩🇪" },
-  { code: "ja", name: "Japanese", native: "日本語", flag: "🇯🇵" },
-  { code: "ko", name: "Korean", native: "한국어", flag: "🇰🇷" },
-  { code: "th", name: "Thai", native: "ภาษาไทย", flag: "🇹🇭" },
-  { code: "vi", name: "Vietnamese", native: "Tiếng Việt", flag: "🇻🇳" },
-];
+import { useLanguage, SUPPORTED_LANGUAGES, LanguageInfo } from "@/context/LanguageContext";
 
 export default function Navbar() {
   const { totalItems, setIsCartOpen, addToCart } = useCart();
   const { totalWishlistItems, setIsWishlistOpen } = useWishlist();
   const isClient = useIsClient();
+  const { language: currentLanguage, setLanguage, t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-  // Language state
-  const [selectedLang, setSelectedLang] = useState(LANGUAGES[0]);
+  // Language dropdown state
   const [isLangOpen, setIsLangOpen] = useState(false);
   const langDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -202,7 +190,7 @@ export default function Navbar() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
-                placeholder="Search for products, brands, or categories..."
+                placeholder={t("searchPlaceholder")}
                 className="w-full bg-gray-50/90 border border-gray-200 rounded-full py-2.5 pl-5 pr-12 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
               />
               {searchQuery ? (
@@ -328,7 +316,7 @@ export default function Navbar() {
               title="Store Manager Dashboard"
             >
               <Award className="w-3.5 h-3.5 text-amber-400" />
-              <span>Manager Portal</span>
+              <span>{t("managerPortal")}</span>
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping ml-0.5" />
             </button>
 
@@ -354,7 +342,7 @@ export default function Navbar() {
                   <User className="w-4 h-4" />
                 </div>
                 <span className="text-[11px] font-medium mt-0.5 truncate max-w-[62px]">
-                  {isLoggedIn ? "Account" : "Sign In"}
+                  {isLoggedIn ? t("account") : "Sign In"}
                 </span>
               </button>
 
@@ -694,7 +682,7 @@ export default function Navbar() {
                   {isClient ? totalItems : 0}
                 </span>
               </div>
-              <span className="text-[11px] font-medium mt-1">Cart</span>
+              <span className="text-[11px] font-medium mt-1">{t("cart")}</span>
             </button>
 
             {/* Language Selector (Moved to after Cart on TopBar) */}
@@ -706,10 +694,10 @@ export default function Navbar() {
                 title="Select Language"
               >
                 <div className="relative flex items-center justify-center h-5">
-                  <span className="text-lg leading-none select-none">{selectedLang.flag}</span>
+                  <span className="text-lg leading-none select-none">{currentLanguage.flag}</span>
                 </div>
                 <div className="flex items-center gap-0.5 text-[11px] font-semibold mt-1 text-gray-700 group-hover:text-blue-600">
-                  <span>{selectedLang.code.toUpperCase()}</span>
+                  <span>{currentLanguage.code.toUpperCase()}</span>
                   <ChevronDown className={`w-2.5 h-2.5 text-gray-400 group-hover:text-blue-600 transition-transform ${isLangOpen ? "rotate-180" : ""}`} />
                 </div>
               </button>
@@ -722,21 +710,21 @@ export default function Navbar() {
                       <Globe className="w-3.5 h-3.5 text-blue-600" /> Choose Language
                     </span>
                     <span className="text-[10px] bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded-full">
-                      {LANGUAGES.length} Languages
+                      {SUPPORTED_LANGUAGES.length} Languages
                     </span>
                   </div>
 
                   <div className="max-h-72 overflow-y-auto py-1 divide-y divide-gray-50">
-                    {LANGUAGES.map((lang) => {
-                      const isSelected = selectedLang.code === lang.code;
+                    {SUPPORTED_LANGUAGES.map((lang: LanguageInfo) => {
+                      const isSelected = currentLanguage.code === lang.code;
                       return (
                         <button
                           key={lang.code}
                           type="button"
                           onClick={() => {
-                            setSelectedLang(lang);
+                            setLanguage(lang);
                             setIsLangOpen(false);
-                            showToast(`🌐 Language changed to ${lang.native} (${lang.name})`);
+                            showToast(`🌐 Language set to ${lang.native} (${lang.name})`);
                           }}
                           className={`w-full text-left px-3.5 py-2.5 flex items-center justify-between hover:bg-blue-50/80 transition cursor-pointer text-xs ${
                             isSelected ? "bg-blue-50/70 text-blue-700 font-bold" : "text-gray-700"

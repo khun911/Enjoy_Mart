@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
 const slides = [
   {
@@ -41,8 +42,15 @@ const slides = [
 ];
 
 export default function Hero() {
+  const { t } = useLanguage();
   const [activeSlide, setActiveSlide] = useState(0);
   const slide = slides[activeSlide];
+
+  // Dynamic translated texts for slide 0 (Main Hero)
+  const currentSubtitle = activeSlide === 0 ? t("welcome") : slide.subtitle;
+  const currentTitle = activeSlide === 0 ? t("heroTitle") : slide.title;
+  const currentDescription = activeSlide === 0 ? t("heroSubtitle") : slide.description;
+  const currentButtonText = activeSlide === 0 ? t("shopNow") : slide.buttonText;
 
   return (
     <div className="flex-1 bg-gradient-to-r from-blue-50/80 via-slate-50 to-indigo-50/50 rounded-2xl p-6 sm:p-10 lg:p-12 relative overflow-hidden border border-blue-100/50 flex flex-col justify-between shadow-xs min-h-[380px]">
@@ -50,15 +58,15 @@ export default function Hero() {
         {/* Left Column Text */}
         <div className="lg:col-span-7 flex flex-col items-start z-10 space-y-4">
           <span className="text-xs sm:text-sm font-bold tracking-widest text-blue-600 uppercase">
-            {slide.subtitle}
+            {currentSubtitle}
           </span>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 tracking-tight leading-tight">
-            {slide.title}
+            {currentTitle}
           </h1>
 
           <p className="text-sm sm:text-base text-gray-600 max-w-md leading-relaxed">
-            {slide.description}
+            {currentDescription}
           </p>
 
           <div className="pt-2">
@@ -66,7 +74,7 @@ export default function Hero() {
               href={slide.buttonHref}
               className="inline-flex items-center justify-center px-7 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 active:scale-[0.98]"
             >
-              {slide.buttonText}
+              {currentButtonText}
             </Link>
           </div>
         </div>

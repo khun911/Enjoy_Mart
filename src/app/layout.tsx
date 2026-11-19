@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { LanguageProvider } from "@/context/LanguageContext";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import CartDrawer from "@/components/cart/CartDrawer";
@@ -22,13 +23,15 @@ export default function RootLayout({
       className="h-full antialiased font-sans"
     >
       <body className="min-h-full flex flex-col bg-white text-gray-900 selection:bg-blue-600 selection:text-white">
-        <CartProvider>
-          <WishlistProvider>
-            {children}
-            <CartDrawer />
-            <WishlistDrawer />
-          </WishlistProvider>
-        </CartProvider>
+        <LanguageProvider>
+          <CartProvider>
+            <WishlistProvider>
+              {children}
+              <CartDrawer />
+              <WishlistDrawer />
+            </WishlistProvider>
+          </CartProvider>
+        </LanguageProvider>
       </body>
     </html>
   );
