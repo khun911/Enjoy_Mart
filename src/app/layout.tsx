@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
+import { WishlistProvider } from "@/context/WishlistContext";
 import CartDrawer from "@/components/cart/CartDrawer";
+import WishlistDrawer from "@/components/cart/WishlistDrawer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,8 +34,11 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-white text-gray-900 selection:bg-blue-600 selection:text-white">
         <CartProvider>
-          {children}
-          <CartDrawer />
+          <WishlistProvider>
+            {children}
+            <CartDrawer />
+            <WishlistDrawer />
+          </WishlistProvider>
         </CartProvider>
       </body>
     </html>

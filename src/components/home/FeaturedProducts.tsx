@@ -2,8 +2,9 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Heart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import { featuredProducts } from "@/data/products";
 
 const categoryMap: Record<string, string> = {
@@ -28,6 +29,7 @@ export default function FeaturedProducts({
   onSelectCategory,
 }: FeaturedProductsProps) {
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const [userFilter, setUserFilter] = useState<string | null>(null);
 
   // Derive active filter cleanly without useEffect
@@ -108,64 +110,96 @@ export default function FeaturedProducts({
 
       {/* Product Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {filteredProducts.map((product) => (
-          <div
-            key={product.id}
-            className="bg-white border border-gray-100 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-blue-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
-          >
-            {/* Image Container */}
-            <div className="relative w-full h-52 bg-gray-50 overflow-hidden">
-              <Image
-                src={product.image}
-                alt={product.name}
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-            </div>
+        {filteredProducts.map((product) => {
+          const isFavorited = isInWishlist(product.id);
 
-            {/* Content Body */}
-            <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="text-base font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1">
-                    {product.name}
-                  </h3>
-                  <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full shrink-0">
-                    {product.category}
-                  </span>
-                </div>
+          return (
+            <div
+              key={product.id}
+              className="bg-white border border-gray-100 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-blue-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative"
+            >
+              {/* Image Container with Floating Wishlist Heart */}
+              <div className="relative w-full h-52 bg-gray-50 overflow-hidden">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                />
 
-                <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
-                  {product.description}
-                </p>
-              </div>
-
-              {/* Price & Add to Cart Button */}
-              <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                <span className="text-xl font-black text-gray-900">
-                  ${product.price}
-                </span>
-
+                {/* Wishlist Heart Toggle */}
                 <button
                   type="button"
-                  onClick={() =>
-                    addToCart({
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleWishlist({
                       id: product.id,
                       name: product.name,
                       price: product.price,
                       image: product.image,
                       category: product.category,
-                    })
-                  }
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow-md hover:shadow-blue-500/20 active:scale-95 transition-all duration-200 cursor-pointer"
+                      rating: product.rating || 5,
+                    });
+                  }}
+                  className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md cursor-pointer ${
+                    isFavorited
+                      ? "bg-rose-500 text-white scale-110"
+                      : "bg-white/90 text-gray-400 hover:text-rose-500 hover:scale-110 backdrop-blur-xs"
+                  }`}
+                  aria-label="Save to wishlist"
                 >
-                  <ShoppingCart className="w-3.5 h-3.5" />
-                  <span>Add to Cart</span>
+                  <Heart
+                    className={`w-4 h-4 transition-colors ${
+                      isFavorited ? "fill-white" : ""
+                    }`}
+                  />
                 </button>
               </div>
+
+              {/* Content Body */}
+              <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-base font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1">
+                      {product.name}
+                    </h3>
+                    <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full shrink-0">
+                      {product.category}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                    {product.description}
+                  </p>
+                </div>
+
+                {/* Price & Add to Cart Button */}
+                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                  <span className="text-xl font-black text-gray-900">
+                    ${product.price}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      addToCart({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        image: product.image,
+                        category: product.category,
+                      })
+                    }
+                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow-md hover:shadow-blue-500/20 active:scale-95 transition-all duration-200 cursor-pointer"
+                  >
+                    <ShoppingCart className="w-3.5 h-3.5" />
+                    <span>Add to Cart</span>
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

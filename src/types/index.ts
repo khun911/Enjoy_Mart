@@ -28,3 +28,27 @@ export interface CartItem {
   category?: string;
   quantity: number;
 }
+
+export interface WishlistItem {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  category?: string;
+  rating?: number;
+}
+
+export interface ClientFeedback {
+  id: string;
+  clientName: string;
+  clientEmail: string;
+  orderId: string;
+  productId: string;
+  productName: string;
+  productImage: string;
+  rating: number;
+  comment: string;
+  date: string;
+  verifiedPurchase: boolean;
+  status: "Published" | "Pending" | "Flagged";
+}

@@ -18,15 +18,23 @@ import {
   ChevronRight,
   ShieldCheck,
   HelpCircle,
+  Star,
+  Award,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import { useIsClient } from "@/hooks/useIsClient";
 import { allSearchableProducts } from "@/data/products";
+import { initialFeedbacks } from "@/data/feedback";
+import { ClientFeedback } from "@/types";
 import OrdersModal from "@/components/layout/OrdersModal";
 import AuthModal from "@/components/layout/AuthModal";
+import ClientFeedbackModal from "@/components/feedback/ClientFeedbackModal";
+import AdminFeedbackDashboard from "@/components/admin/AdminFeedbackDashboard";
 
 export default function Navbar() {
   const { totalItems, setIsCartOpen, addToCart } = useCart();
+  const { totalWishlistItems, setIsWishlistOpen } = useWishlist();
   const isClient = useIsClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -46,9 +54,13 @@ export default function Navbar() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<"signin" | "signup">("signin");
 
+  // Feedback & Admin Watchtower States
+  const [feedbacks, setFeedbacks] = useState<ClientFeedback[]>(initialFeedbacks);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState(false);
+
   // Notifications
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [wishlistCount] = useState(3);
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const accountContainerRef = useRef<HTMLDivElement>(null);
@@ -97,6 +109,12 @@ export default function Navbar() {
     });
     setIsLoggedIn(true);
     showToast(`🎉 Welcome back, ${user.name}!`);
+  };
+
+  // Add new feedback from client
+  const handleAddFeedback = (newFeedback: ClientFeedback) => {
+    setFeedbacks((prev) => [newFeedback, ...prev]);
+    showToast("⭐ Thank you! Your verified feedback has been shared with the manager.");
   };
 
   // Filter products by search query
@@ -274,8 +292,20 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Right Actions: Account, Wishlist, Cart */}
-          <div className="flex items-center gap-5 sm:gap-7 shrink-0">
+          {/* Right Actions: Manager Button, Account, Wishlist, Cart */}
+          <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+            {/* Store Manager Watchtower Trigger Button */}
+            <button
+              type="button"
+              onClick={() => setIsAdminDashboardOpen(true)}
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold shadow-xs transition cursor-pointer"
+              title="Store Manager Dashboard"
+            >
+              <Award className="w-3.5 h-3.5 text-amber-400" />
+              <span>Manager Portal</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping ml-0.5" />
+            </button>
+
             {/* Account Menu with Standard E-Commerce Structure */}
             <div
               ref={accountContainerRef}
@@ -370,14 +400,14 @@ export default function Navbar() {
                           </div>
                         </button>
 
-                        {/* Saved Wishlist */}
+                        {/* Saved Wishlist Drawer Trigger */}
                         <button
                           type="button"
                           onMouseEnter={() => setHoveredMenuItem("wishlist")}
                           onMouseLeave={() => setHoveredMenuItem(null)}
                           onClick={() => {
+                            setIsWishlistOpen(true);
                             setIsAccountOpen(false);
-                            showToast(`❤️ Wishlist contains ${wishlistCount} saved items.`);
                           }}
                           className="w-full text-left px-5 py-2.5 hover:bg-blue-50/80 text-gray-700 hover:text-blue-600 font-medium transition flex items-center justify-between cursor-pointer group/item"
                         >
@@ -391,17 +421,73 @@ export default function Navbar() {
                               </div>
                               <div className="text-[10px] text-gray-400">
                                 {hoveredMenuItem === "wishlist"
-                                  ? "MacBook, Leather Jacket & Watch"
+                                  ? `${totalWishlistItems} items in your wishlist`
                                   : "View your saved favorites"}
                               </div>
                             </div>
                           </div>
                           <div className="flex items-center gap-1.5">
                             <span className="bg-rose-100 text-rose-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                              {wishlistCount}
+                              {isClient ? totalWishlistItems : 0}
                             </span>
                             <ChevronRight className="w-3.5 h-3.5 text-gray-300 group-hover/item:text-rose-500 group-hover/item:translate-x-0.5 transition-all" />
                           </div>
+                        </button>
+
+                        {/* Leave Product Feedback */}
+                        <button
+                          type="button"
+                          onMouseEnter={() => setHoveredMenuItem("feedback")}
+                          onMouseLeave={() => setHoveredMenuItem(null)}
+                          onClick={() => {
+                            setIsFeedbackModalOpen(true);
+                            setIsAccountOpen(false);
+                          }}
+                          className="w-full text-left px-5 py-2.5 hover:bg-amber-50/80 text-gray-700 hover:text-amber-700 font-medium transition flex items-center justify-between cursor-pointer group/item"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover/item:bg-amber-100/60 flex items-center justify-center text-gray-500 group-hover/item:text-amber-600 transition">
+                              <Star className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <div className="font-bold text-gray-900 group-hover/item:text-amber-700 text-xs">
+                                Review Ordered Products
+                              </div>
+                              <div className="text-[10px] text-gray-400">
+                                Send feedback to store manager
+                              </div>
+                            </div>
+                          </div>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-300 group-hover/item:text-amber-600 group-hover/item:translate-x-0.5 transition-all" />
+                        </button>
+
+                        {/* Admin Watchtower Shortcut */}
+                        <button
+                          type="button"
+                          onMouseEnter={() => setHoveredMenuItem("admin")}
+                          onMouseLeave={() => setHoveredMenuItem(null)}
+                          onClick={() => {
+                            setIsAdminDashboardOpen(true);
+                            setIsAccountOpen(false);
+                          }}
+                          className="w-full text-left px-5 py-2.5 hover:bg-slate-100 text-gray-700 hover:text-slate-900 font-medium transition flex items-center justify-between cursor-pointer group/item"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 transition">
+                              <Award className="w-4 h-4 text-amber-500" />
+                            </div>
+                            <div>
+                              <div className="font-bold text-gray-900 text-xs">
+                                Manager Feedback Watchtower
+                              </div>
+                              <div className="text-[10px] text-gray-400">
+                                View client names & ordered items
+                              </div>
+                            </div>
+                          </div>
+                          <span className="bg-slate-900 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                            Admin
+                          </span>
                         </button>
 
                         {/* Account Settings */}
@@ -512,15 +598,14 @@ export default function Navbar() {
                         <button
                           type="button"
                           onClick={() => {
+                            setIsAdminDashboardOpen(true);
                             setIsAccountOpen(false);
-                            const el = document.getElementById("deals");
-                            if (el) el.scrollIntoView({ behavior: "smooth" });
                           }}
-                          className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-gray-50 text-gray-700 flex items-center justify-between text-xs font-medium cursor-pointer transition"
+                          className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-slate-50 text-slate-800 flex items-center justify-between text-xs font-bold cursor-pointer transition"
                         >
                           <div className="flex items-center gap-2">
-                            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                            <span>VIP Club & Promotions</span>
+                            <Award className="w-3.5 h-3.5 text-amber-500" />
+                            <span>Manager Feedback Watchtower</span>
                           </div>
                           <ChevronRight className="w-3 h-3 text-gray-300" />
                         </button>
@@ -571,17 +656,18 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Wishlist Button with Badge & Notification */}
+            {/* Wishlist Button with Real Reactive Badge & Drawer Trigger */}
             <div className="relative">
               <button
                 type="button"
-                onClick={() => showToast(`❤️ You have ${wishlistCount} saved items in your wishlist!`)}
-                className="flex flex-col items-center group text-gray-700 hover:text-blue-600 transition relative cursor-pointer"
+                onClick={() => setIsWishlistOpen(true)}
+                className="flex flex-col items-center group text-gray-700 hover:text-rose-600 transition relative cursor-pointer"
+                title="View Saved Wishlist"
               >
                 <div className="relative">
-                  <Heart className="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition" />
+                  <Heart className="w-5 h-5 text-gray-600 group-hover:text-rose-600 transition" />
                   <span className="absolute -top-1.5 -right-2 bg-rose-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
-                    {wishlistCount}
+                    {isClient ? totalWishlistItems : 0}
                   </span>
                 </div>
                 <span className="text-[11px] font-medium mt-1">Wishlist</span>
@@ -639,6 +725,22 @@ export default function Navbar() {
         initialMode={authModalMode}
         onClose={() => setIsAuthModalOpen(false)}
         onLoginSuccess={handleLoginSuccess}
+      />
+
+      {/* Client Feedback Review Modal (Reviewed Products from Orders) */}
+      <ClientFeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
+        clientName={currentUser.name}
+        clientEmail={currentUser.email}
+        onAddFeedback={handleAddFeedback}
+      />
+
+      {/* Admin / Store Manager Feedback Watchtower Dashboard */}
+      <AdminFeedbackDashboard
+        isOpen={isAdminDashboardOpen}
+        onClose={() => setIsAdminDashboardOpen(false)}
+        feedbacks={feedbacks}
       />
     </>
   );
