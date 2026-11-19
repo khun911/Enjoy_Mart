@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Menu } from "lucide-react";
+import { Layers, ChevronDown, ChevronUp, Flame, ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 interface CategoryNavProps {
@@ -16,8 +16,8 @@ interface CategoryNavProps {
 const navItems = [
   { name: "Home", key: "home", action: "home" },
   { name: "Shop", key: "shop", action: "shop" },
-  { name: "Deals", key: "deals", action: "deals" },
-  { name: "New Arrivals", key: "newArrivals", action: "new-arrivals" },
+  { name: "Deals", key: "deals", action: "deals", badge: "HOT" },
+  { name: "New Arrivals", key: "newArrivals", action: "new-arrivals", badge: "2026" },
   { name: "Best Sellers", key: "bestSellers", action: "best-sellers" },
   { name: "Track Order", key: "trackOrder", action: "track-order" },
   { name: "Contact Us", key: "contactUs", action: "contact" },
@@ -64,58 +64,94 @@ export default function CategoryNav({
   };
 
   return (
-    <div className="w-full bg-white border-b border-gray-100 sticky top-[73px] z-30 backdrop-blur-md bg-white/95">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-6">
-        {/* Browse Categories Button */}
-        <div className="w-64 shrink-0 hidden lg:block">
+    <div className="w-full bg-white border-b border-slate-200/80 sticky top-[73px] z-30 backdrop-blur-md bg-white/95 shadow-xs">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-6">
+        <div className="flex items-center gap-6">
+          {/* Formal All Departments Toggle Button */}
+          <div className="w-64 shrink-0 hidden lg:block">
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              aria-expanded={isSidebarOpen}
+              className={`w-full ${
+                isSidebarOpen
+                  ? "bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 text-white"
+                  : "bg-slate-900 hover:bg-slate-800 text-white"
+              } font-bold py-2.5 px-4 rounded-xl flex items-center justify-between transition-all shadow-xs border border-slate-800 cursor-pointer group`}
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-6 rounded-md bg-amber-400/20 text-amber-300 flex items-center justify-center">
+                  <Layers className="w-3.5 h-3.5" />
+                </div>
+                <span className="text-xs font-black tracking-wider uppercase">
+                  {t("browseCategories")}
+                </span>
+              </div>
+              {isSidebarOpen ? (
+                <ChevronUp className="w-4 h-4 text-amber-400 transition-transform" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-white transition-transform" />
+              )}
+            </button>
+          </div>
+
+          {/* Mobile categories button */}
           <button
             type="button"
             onClick={toggleSidebar}
-            aria-expanded={isSidebarOpen}
-            className={`w-full ${
-              isSidebarOpen ? "bg-blue-600" : "bg-blue-700"
-            } hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-t-xl flex items-center gap-3 transition-colors shadow-xs cursor-pointer`}
+            className="lg:hidden flex items-center gap-2 bg-slate-900 text-white text-xs font-bold py-2 px-3 rounded-lg my-2 cursor-pointer shadow-xs"
           >
-            <Menu className="w-5 h-5" />
-            <span className="text-sm font-semibold tracking-wide">
-              {t("browseCategories")}
-            </span>
+            <Layers className="w-4 h-4 text-amber-400" />
+            <span>{t("browseCategories")}</span>
+            {isSidebarOpen ? (
+              <ChevronUp className="w-3.5 h-3.5 text-slate-300" />
+            ) : (
+              <ChevronDown className="w-3.5 h-3.5 text-slate-300" />
+            )}
           </button>
+
+          {/* Main Navigation Links */}
+          <nav className="flex items-center gap-6 sm:gap-7 overflow-x-auto no-scrollbar py-3 lg:py-0">
+            {navItems.map((item) => {
+              const isActive = activeTab === item.name;
+              return (
+                <button
+                  key={item.name}
+                  type="button"
+                  onClick={() => handleNavClick(item)}
+                  className={`relative py-3.5 text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                    isActive
+                      ? "text-blue-600 font-extrabold"
+                      : "text-slate-700 hover:text-blue-600"
+                  }`}
+                >
+                  <span>{t(item.key)}</span>
+                  {item.badge && (
+                    <span
+                      className={`text-[9px] font-black px-1.5 py-0.2 rounded-full uppercase tracking-wider ${
+                        item.badge === "HOT"
+                          ? "bg-rose-100 text-rose-600 flex items-center gap-0.5"
+                          : "bg-blue-100 text-blue-700"
+                      }`}
+                    >
+                      {item.badge === "HOT" && <Flame className="w-2.5 h-2.5" />}
+                      {item.badge}
+                    </span>
+                  )}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full animate-in fade-in duration-150" />
+                  )}
+                </button>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* Mobile categories button */}
-        <button
-          type="button"
-          onClick={toggleSidebar}
-          className="lg:hidden flex items-center gap-2 bg-blue-600 text-white text-xs font-semibold py-2 px-3 rounded-lg my-2 cursor-pointer"
-        >
-          <Menu className="w-4 h-4" />
-          <span>{t("browseCategories")}</span>
-        </button>
-
-        {/* Main Navigation Links */}
-        <nav className="flex items-center gap-6 sm:gap-8 overflow-x-auto no-scrollbar py-3 lg:py-0">
-          {navItems.map((item) => {
-            const isActive = activeTab === item.name;
-            return (
-              <button
-                key={item.name}
-                type="button"
-                onClick={() => handleNavClick(item)}
-                className={`relative py-3.5 text-sm font-medium whitespace-nowrap transition-all cursor-pointer ${
-                  isActive
-                    ? "text-blue-600 font-semibold"
-                    : "text-gray-700 hover:text-blue-600"
-                }`}
-              >
-                <span>{t(item.key)}</span>
-                {isActive && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full animate-in fade-in duration-150" />
-                )}
-              </button>
-            );
-          })}
-        </nav>
+        {/* Right Quality Assurance Tag */}
+        <div className="hidden xl:flex items-center gap-2 text-xs font-semibold text-slate-500 shrink-0">
+          <ShieldCheck className="w-4 h-4 text-emerald-600" />
+          <span className="text-[11px]">Official Authorized Retail Store</span>
+        </div>
       </div>
     </div>
   );
