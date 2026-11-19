@@ -1,10 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import { Phone, Mail, ChevronDown, Sparkles } from "lucide-react";
 
-export default function TopBar() {
+interface TopBarProps {
+  onOpenOrders?: () => void;
+  onOpenContact?: () => void;
+}
+
+export default function TopBar({ onOpenOrders, onOpenContact }: TopBarProps) {
   const [currency, setCurrency] = useState("USD ($)");
   const [language, setLanguage] = useState("English");
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
@@ -21,16 +25,17 @@ export default function TopBar() {
               className="flex items-center gap-1.5 hover:text-white transition"
             >
               <Phone className="w-3.5 h-3.5 text-blue-400" />
-              <span> 123-4567</span>
+              <span>+1 (800) 123-4567</span>
             </a>
             <span className="text-gray-700">|</span>
-            <a
-              href="mailto:support@enjoymart.com"
-              className="flex items-center gap-1.5 hover:text-white transition"
+            <button
+              type="button"
+              onClick={onOpenContact}
+              className="flex items-center gap-1.5 hover:text-white transition cursor-pointer"
             >
               <Mail className="w-3.5 h-3.5 text-blue-400" />
-              <span>stevkhun@gmail.com</span>
-            </a>
+              <span>support@enjoymart.com</span>
+            </button>
           </div>
 
           <div className="flex items-center gap-1.5 text-blue-300 font-medium">
@@ -47,13 +52,21 @@ export default function TopBar() {
         {/* Right: Quick Links, Language & Currency */}
         <div className="flex items-center gap-4 sm:gap-6 shrink-0">
           <div className="hidden sm:flex items-center gap-4 text-gray-400">
-            <Link href="#track-order" className="hover:text-white transition">
+            <button
+              type="button"
+              onClick={onOpenOrders}
+              className="hover:text-white transition cursor-pointer"
+            >
               Track Order
-            </Link>
+            </button>
             <span className="text-gray-700">|</span>
-            <Link href="#faq" className="hover:text-white transition">
+            <button
+              type="button"
+              onClick={onOpenContact}
+              className="hover:text-white transition cursor-pointer"
+            >
               Help Center
-            </Link>
+            </button>
           </div>
 
           {/* Currency Dropdown */}
@@ -79,8 +92,9 @@ export default function TopBar() {
                       setCurrency(curr);
                       setIsCurrencyOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-blue-600 transition cursor-pointer ${currency === curr ? "font-bold text-blue-600" : ""
-                      }`}
+                    className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-blue-600 transition cursor-pointer ${
+                      currency === curr ? "font-bold text-blue-600" : ""
+                    }`}
                   >
                     {curr}
                   </button>
@@ -112,8 +126,9 @@ export default function TopBar() {
                       setLanguage(lang);
                       setIsLangOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-blue-600 transition cursor-pointer ${language === lang ? "font-bold text-blue-600" : ""
-                      }`}
+                    className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-blue-600 transition cursor-pointer ${
+                      language === lang ? "font-bold text-blue-600" : ""
+                    }`}
                   >
                     {lang}
                   </button>
