@@ -18,16 +18,23 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    if (typeof window === "undefined") return [];
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // Hydration-safe initial load from localStorage
+  useEffect(() => {
     try {
       const saved = localStorage.getItem("enjoy_mart_cart");
-      return saved ? JSON.parse(saved) : [];
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setTimeout(() => setCart(parsed), 0);
+        }
+      }
     } catch {
-      return [];
+      // ignore
     }
-  });
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  }, []);
 
   // Save to localStorage
   useEffect(() => {

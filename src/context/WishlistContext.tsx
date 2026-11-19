@@ -48,17 +48,23 @@ interface WishlistContextType {
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
 
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
-  const [wishlist, setWishlist] = useState<WishlistItem[]>(() => {
-    if (typeof window === "undefined") return defaultWishlistItems;
+  const [wishlist, setWishlist] = useState<WishlistItem[]>(defaultWishlistItems);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+
+  // Hydration-safe initial load from localStorage
+  useEffect(() => {
     try {
       const saved = localStorage.getItem("enjoy_mart_wishlist");
-      return saved ? JSON.parse(saved) : defaultWishlistItems;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setTimeout(() => setWishlist(parsed), 0);
+        }
+      }
     } catch {
-      return defaultWishlistItems;
+      // ignore
     }
-  });
-
-  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  }, []);
 
   useEffect(() => {
     try {

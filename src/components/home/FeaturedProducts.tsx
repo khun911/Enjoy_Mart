@@ -6,6 +6,7 @@ import { ShoppingCart, Heart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { useIsClient } from "@/hooks/useIsClient";
 import { featuredProducts } from "@/data/products";
 
 const categoryMap: Record<string, string> = {
@@ -32,6 +33,7 @@ export default function FeaturedProducts({
   const { t } = useLanguage();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const isClient = useIsClient();
   const [userFilter, setUserFilter] = useState<string | null>(null);
 
   // Derive active filter cleanly without useEffect
@@ -113,7 +115,7 @@ export default function FeaturedProducts({
       {/* Product Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {filteredProducts.map((product) => {
-          const isFavorited = isInWishlist(product.id);
+          const isFavorited = isClient ? isInWishlist(product.id) : false;
 
           return (
             <div
@@ -126,6 +128,7 @@ export default function FeaturedProducts({
                   src={product.image}
                   alt={product.name}
                   fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
 

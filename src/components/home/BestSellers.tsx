@@ -7,12 +7,14 @@ import { Star, ShoppingCart, Heart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { useIsClient } from "@/hooks/useIsClient";
 import { bestSellerProducts } from "@/data/products";
 
 export default function BestSellers() {
   const { t } = useLanguage();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const isClient = useIsClient();
 
   return (
     <section id="best-sellers" className="w-full space-y-4 scroll-mt-24">
@@ -32,7 +34,7 @@ export default function BestSellers() {
       {/* Grid of Best Sellers */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5">
         {bestSellerProducts.map((product) => {
-          const isFavorited = isInWishlist(product.id);
+          const isFavorited = isClient ? isInWishlist(product.id) : false;
 
           return (
             <div
@@ -71,6 +73,7 @@ export default function BestSellers() {
                   src={product.image}
                   alt={product.name}
                   fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                   className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
