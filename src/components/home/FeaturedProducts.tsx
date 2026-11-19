@@ -6,18 +6,68 @@ import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { featuredProducts } from "@/data/products";
 
-export default function FeaturedProducts() {
-  const { addToCart } = useCart();
-  const [activeFilter, setActiveFilter] = useState("All");
+const categoryMap: Record<string, string> = {
+  electronics: "Electronics",
+  fashion: "Fashion",
+  home: "Home & Living",
+  beauty: "Beauty & Personal Care",
+  sports: "Sports & Outdoors",
+  toys: "Toys & Games",
+  automotive: "Automotive",
+  books: "Books & Stationery",
+  health: "Health & Wellness",
+};
 
-  const categories = ["All", "Electronics", "Fashion", "Home"];
+interface FeaturedProductsProps {
+  selectedCategory?: string;
+  onSelectCategory?: (categoryId: string) => void;
+}
+
+export default function FeaturedProducts({
+  selectedCategory = "electronics",
+  onSelectCategory,
+}: FeaturedProductsProps) {
+  const { addToCart } = useCart();
+  const [userFilter, setUserFilter] = useState<string | null>(null);
+
+  // Derive active filter cleanly without useEffect
+  const activeFilter =
+    userFilter !== null
+      ? userFilter
+      : categoryMap[selectedCategory] || "All";
+
+  const categories = [
+    "All",
+    "Electronics",
+    "Fashion",
+    "Home & Living",
+    "Beauty & Personal Care",
+    "Sports & Outdoors",
+    "Toys & Games",
+    "Automotive",
+    "Books & Stationery",
+    "Health & Wellness",
+  ];
+
+  const handleFilterClick = (cat: string) => {
+    setUserFilter(cat);
+    if (onSelectCategory) {
+      const foundEntry = Object.entries(categoryMap).find(
+        ([, val]) => val === cat
+      );
+      if (foundEntry) {
+        onSelectCategory(foundEntry[0]);
+      }
+    }
+  };
+
   const filteredProducts =
     activeFilter === "All"
       ? featuredProducts
       : featuredProducts.filter((p) => p.category === activeFilter);
 
   return (
-    <section id="products" className="w-full space-y-6">
+    <section id="products" className="w-full space-y-6 scroll-mt-24">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
@@ -25,18 +75,18 @@ export default function FeaturedProducts() {
             Featured Products
           </h2>
           <p className="text-sm text-gray-500 mt-1">
-            Curated collection of premium products
+            Curated collection of premium products {activeFilter !== "All" && `in ${activeFilter}`}
           </p>
         </div>
 
         {/* Category Pills Filter */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-          {categories.map((cat) => (
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+          {categories.slice(0, 5).map((cat) => (
             <button
               key={cat}
               type="button"
-              onClick={() => setActiveFilter(cat)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+              onClick={() => handleFilterClick(cat)}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
                 activeFilter === cat
                   ? "bg-blue-600 text-white shadow-xs"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -45,6 +95,14 @@ export default function FeaturedProducts() {
               {cat}
             </button>
           ))}
+          {activeFilter !== "All" && !categories.slice(0, 5).includes(activeFilter) && (
+            <button
+              type="button"
+              className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blue-600 text-white shadow-xs whitespace-nowrap"
+            >
+              {activeFilter}
+            </button>
+          )}
         </div>
       </div>
 
@@ -68,11 +126,11 @@ export default function FeaturedProducts() {
             {/* Content Body */}
             <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="text-base font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1">
                     {product.name}
                   </h3>
-                  <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full">
+                  <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full shrink-0">
                     {product.category}
                   </span>
                 </div>

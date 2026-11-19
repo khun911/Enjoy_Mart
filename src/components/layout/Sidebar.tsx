@@ -6,9 +6,28 @@ import Image from "next/image";
 import { ArrowRight, ChevronRight, Sparkles } from "lucide-react";
 import { sidebarCategories, SidebarCategoryData } from "@/data/categories";
 
-export default function Sidebar({ isOpen = true }: { isOpen?: boolean }) {
-  const [activeCategory, setActiveCategory] = useState<string>("electronics");
+interface SidebarProps {
+  isOpen?: boolean;
+  selectedCategory?: string;
+  onSelectCategory?: (categoryId: string) => void;
+}
+
+export default function Sidebar({
+  isOpen = true,
+  selectedCategory = "electronics",
+  onSelectCategory,
+}: SidebarProps) {
+  const [internalActive, setInternalActive] = useState<string>(selectedCategory);
   const [hoveredCategory, setHoveredCategory] = useState<SidebarCategoryData | null>(null);
+
+  const activeId = onSelectCategory ? selectedCategory : internalActive;
+
+  const handleSelect = (catId: string) => {
+    setInternalActive(catId);
+    if (onSelectCategory) {
+      onSelectCategory(catId);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -17,12 +36,11 @@ export default function Sidebar({ isOpen = true }: { isOpen?: boolean }) {
       className="relative"
       onMouseLeave={() => setHoveredCategory(null)}
     >
-      <aside className="w-64 bg-white border-x border-b border-gray-200/80 rounded-b-xl shadow-xs shrink-0 flex flex-col justify-between overflow-visible">
-        <ul className="divide-y divide-gray-100/80 py-1">
+      <aside className="w-64 bg-white border-x border-b border-gray-200/90 rounded-b-xl shadow-xs shrink-0 flex flex-col justify-between overflow-visible">
+        <ul className="divide-y divide-gray-100 py-0.5">
           {sidebarCategories.map((cat) => {
             const Icon = cat.icon;
-            const isSelected = activeCategory === cat.id;
-            const isHovered = hoveredCategory?.id === cat.id;
+            const isSelected = activeId === cat.id;
 
             return (
               <li
@@ -30,19 +48,19 @@ export default function Sidebar({ isOpen = true }: { isOpen?: boolean }) {
                 onMouseEnter={() => setHoveredCategory(cat)}
                 className="relative"
               >
-                <Link
-                  href={cat.href}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`flex items-center justify-between px-4 py-3 text-sm transition-colors group ${
-                    isSelected || isHovered
-                      ? "bg-blue-50/80 text-blue-600 font-medium"
-                      : "text-gray-700 hover:text-blue-600 hover:bg-blue-50/50"
+                <button
+                  type="button"
+                  onClick={() => handleSelect(cat.id)}
+                  className={`w-full text-left flex items-center justify-between px-4 py-3 text-sm transition-colors cursor-pointer ${
+                    isSelected
+                      ? "bg-blue-50/70 text-blue-600 font-medium"
+                      : "text-gray-800 hover:text-blue-600 hover:bg-gray-50/80 font-normal"
                   }`}
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
                     <Icon
                       className={`w-4 h-4 shrink-0 transition-colors ${
-                        isSelected || isHovered
+                        isSelected
                           ? "text-blue-600"
                           : "text-gray-400 group-hover:text-blue-600"
                       }`}
@@ -50,27 +68,25 @@ export default function Sidebar({ isOpen = true }: { isOpen?: boolean }) {
                     <span className="truncate">{cat.name}</span>
                   </div>
 
-                  <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                  <div className="flex items-center gap-2 shrink-0 ml-2">
                     {cat.badge && (
                       <span
-                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                        className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
                           cat.badge === "Hot"
-                            ? "bg-rose-100 text-rose-600"
-                            : "bg-emerald-100 text-emerald-600"
+                            ? "bg-rose-100/80 text-rose-500"
+                            : "bg-emerald-100/80 text-emerald-600"
                         }`}
                       >
                         {cat.badge}
                       </span>
                     )}
                     <ChevronRight
-                      className={`w-3.5 h-3.5 transition-transform ${
-                        isHovered
-                          ? "text-blue-600 translate-x-0.5"
-                          : "text-gray-300 opacity-60"
+                      className={`w-3.5 h-3.5 stroke-[1.8] ${
+                        isSelected ? "text-blue-500/80" : "text-gray-300"
                       }`}
                     />
                   </div>
-                </Link>
+                </button>
               </li>
             );
           })}
@@ -80,7 +96,7 @@ export default function Sidebar({ isOpen = true }: { isOpen?: boolean }) {
         <div className="p-3 border-t border-gray-100 bg-gray-50/50">
           <Link
             href="#categories"
-            className="flex items-center justify-between text-xs font-semibold text-gray-700 hover:text-blue-600 py-1.5 px-2 transition-colors group"
+            className="flex items-center justify-between text-xs font-semibold text-gray-800 hover:text-blue-600 py-1.5 px-2 transition-colors group"
           >
             <span>View All Categories</span>
             <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:translate-x-1 group-hover:text-blue-600 transition-all" />
@@ -111,13 +127,19 @@ export default function Sidebar({ isOpen = true }: { isOpen?: boolean }) {
               </div>
             </div>
 
-            <Link
-              href={hoveredCategory.href}
-              className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1"
+            <button
+              type="button"
+              onClick={() => {
+                handleSelect(hoveredCategory.id);
+                setHoveredCategory(null);
+                const el = document.getElementById("products");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer"
             >
-              <span>Explore All</span>
+              <span>View Products</span>
               <ArrowRight className="w-3 h-3" />
-            </Link>
+            </button>
           </div>
 
           {/* Subcategory Grid */}
@@ -131,12 +153,18 @@ export default function Sidebar({ isOpen = true }: { isOpen?: boolean }) {
                 <ul className="space-y-1.5 pl-3">
                   {group.items.map((item, itemIdx) => (
                     <li key={itemIdx}>
-                      <Link
-                        href={`#category-${hoveredCategory.id}`}
-                        className="text-xs text-gray-600 hover:text-blue-600 hover:translate-x-1 inline-block transition-all"
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleSelect(hoveredCategory.id);
+                          setHoveredCategory(null);
+                          const el = document.getElementById("products");
+                          if (el) el.scrollIntoView({ behavior: "smooth" });
+                        }}
+                        className="text-xs text-gray-600 hover:text-blue-600 hover:translate-x-1 inline-block transition-all text-left cursor-pointer"
                       >
                         {item}
-                      </Link>
+                      </button>
                     </li>
                   ))}
                 </ul>

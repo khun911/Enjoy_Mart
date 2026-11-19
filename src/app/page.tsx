@@ -17,6 +17,7 @@ import FeaturedProducts from "@/components/home/FeaturedProducts";
 
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("electronics");
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -42,7 +43,11 @@ export default function Home() {
               isSidebarOpen ? "block" : "hidden lg:hidden"
             }`}
           >
-            <Sidebar isOpen={isSidebarOpen} />
+            <Sidebar
+              isOpen={isSidebarOpen}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+            />
           </div>
 
           {/* Right Hero Banner */}
@@ -59,7 +64,10 @@ export default function Home() {
         <BestSellers />
 
         {/* Featured Products */}
-        <FeaturedProducts />
+        <FeaturedProducts
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+        />
       </main>
 
       {/* Footer */}
