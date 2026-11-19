@@ -6,7 +6,6 @@ import {
   X,
   ShieldCheck,
   Lock,
-  CreditCard,
   CheckCircle2,
   RefreshCw,
   Printer,
@@ -26,6 +25,7 @@ interface FormalCheckoutModalProps {
   onClose: () => void;
   cart: CartItem[];
   totalPrice: number;
+  initialCurrency?: string;
   onOrderSuccess: (orderId: string) => void;
 }
 
@@ -34,10 +34,11 @@ export default function FormalCheckoutModal({
   onClose,
   cart,
   totalPrice,
+  initialCurrency = "USD",
   onOrderSuccess,
 }: FormalCheckoutModalProps) {
   // Currency exchange state
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState(initialCurrency);
 
   // Client & Card form state
   const [cardHolder, setCardHolder] = useState("KHUN 911");
@@ -122,20 +123,24 @@ export default function FormalCheckoutModal({
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
       <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full overflow-hidden border border-gray-100 flex flex-col max-h-[92vh]">
-        {/* Top Header */}
+        {/* Top Header with OFFICIAL WEBSITE LOGO */}
         <div className="px-6 py-4 bg-gradient-to-r from-blue-700 via-blue-800 to-indigo-900 text-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
-              <CreditCard className="w-5 h-5 text-white" />
+            {/* Enjoy-Mart Official Website Logo */}
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-blue-600 shadow-md shrink-0">
+              <span className="font-extrabold text-xl tracking-tight">E</span>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold tracking-tight">Formal Card Checkout & Exchange</h2>
+                <span className="font-black text-lg tracking-tight text-white leading-none">
+                  ENJOY<span className="text-blue-200">-MART</span>
+                </span>
+                <span className="text-white/60 text-xs font-semibold">| Formal Checkout</span>
                 <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 text-[10px] font-semibold flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3" /> 256-Bit SSL Secured
+                  <ShieldCheck className="w-3 h-3" /> 256-Bit SSL
                 </span>
               </div>
-              <p className="text-xs text-blue-200">Official Enjoy-Mart Payment Gateway & Exchange Policy</p>
+              <p className="text-xs text-blue-200 mt-0.5">Official Payment Gateway & Exchange Policy</p>
             </div>
           </div>
           <button
@@ -148,30 +153,29 @@ export default function FormalCheckoutModal({
         </div>
 
         {/* Currency & Exchange Banner Bar */}
-        <div className="bg-blue-50/80 px-6 py-2.5 border-b border-blue-100 flex flex-wrap items-center justify-between gap-3 text-xs shrink-0">
+        <div className="bg-blue-50/90 px-6 py-2.5 border-b border-blue-100 flex flex-wrap items-center justify-between gap-3 text-xs shrink-0">
           <div className="flex items-center gap-2 text-gray-700">
             <RefreshCw className="w-3.5 h-3.5 text-blue-600 animate-spin-reverse" />
-            <span className="font-semibold text-blue-900">Currency Exchange:</span>
+            <span className="font-semibold text-blue-900">Exchange Money:</span>
             <span className="text-gray-600">
-              1 USD = {CURRENCIES.KHR.rate.toLocaleString()} KHR | {CURRENCIES.EUR.rate} EUR | {CURRENCIES.GBP.rate} GBP
+              1 USD = {CURRENCIES[currency]?.rate?.toLocaleString() || 1} {currency} ({CURRENCIES[currency]?.name || "US Dollar"})
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-white p-0.5 rounded-lg border border-blue-200 shadow-2xs">
-            {Object.keys(CURRENCIES).map((cur) => (
-              <button
-                key={cur}
-                type="button"
-                onClick={() => setCurrency(cur)}
-                className={`px-2.5 py-1 rounded-md text-xs font-bold transition cursor-pointer ${
-                  currency === cur
-                    ? "bg-blue-600 text-white shadow-xs"
-                    : "text-gray-600 hover:text-blue-700 hover:bg-blue-50"
-                }`}
-              >
-                {CURRENCIES[cur].flag} {cur}
-              </button>
-            ))}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] text-gray-500 font-medium">Select Currency:</span>
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              aria-label="Select Payment Currency"
+              className="bg-white border border-blue-200 text-blue-900 font-bold text-xs py-1 px-2.5 rounded-lg shadow-2xs focus:outline-none focus:border-blue-600 cursor-pointer"
+            >
+              {Object.keys(CURRENCIES).map((cur) => (
+                <option key={cur} value={cur}>
+                  {CURRENCIES[cur].flag} {cur} - {CURRENCIES[cur].name} ({CURRENCIES[cur].symbol})
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -188,7 +192,7 @@ export default function FormalCheckoutModal({
                   <div className="absolute -top-12 -right-12 w-48 h-48 bg-blue-500/20 rounded-full blur-2xl pointer-events-none" />
 
                   {/* Card Top: Chip & Contactless */}
-                  <div className="relative z-10 flex items-center justify-between mb-4">
+                  <div className="relative z-10 flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
                       {/* Realistic Gold EMV Chip */}
                       <div className="w-11 h-8 rounded-md bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 border border-amber-500 shadow-inner p-1 flex flex-col justify-between">
@@ -226,6 +230,16 @@ export default function FormalCheckoutModal({
                         Platinum Debit
                       </span>
                     </div>
+                  </div>
+
+                  {/* Enjoy-Mart Official Brand on Card */}
+                  <div className="relative z-10 flex items-center gap-1.5 opacity-90 my-1">
+                    <div className="w-5 h-5 rounded-md bg-white/20 backdrop-blur-xs flex items-center justify-center text-[10px] font-black text-white border border-white/30">
+                      E
+                    </div>
+                    <span className="text-[10px] font-black tracking-widest uppercase text-white/95">
+                      ENJOY-MART <span className="text-[8px] font-normal text-blue-200">PLATINUM VIP</span>
+                    </span>
                   </div>
 
                   {/* Card Number */}
@@ -604,13 +618,18 @@ export default function FormalCheckoutModal({
               {/* Formal Printed Receipt Paper Card */}
               <div id="printable-receipt" className="bg-gray-50/90 rounded-2xl p-6 border-2 border-dashed border-gray-300 relative shadow-sm">
                 <div className="flex items-center justify-between pb-4 border-b border-gray-200">
-                  <div>
-                    <span className="text-xs font-bold text-blue-600 uppercase tracking-widest">
-                      Enjoy-Mart Official Invoice
-                    </span>
-                    <h4 className="text-base font-extrabold text-gray-900 mt-0.5">
-                      Receipt #{confirmedOrderId}
-                    </h4>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-extrabold text-lg shadow-sm">
+                      E
+                    </div>
+                    <div>
+                      <span className="font-black text-sm tracking-tight text-blue-600 leading-none block">
+                        ENJOY<span className="text-gray-900">-MART</span>
+                      </span>
+                      <h4 className="text-base font-extrabold text-gray-900 mt-0.5">
+                        Receipt #{confirmedOrderId}
+                      </h4>
+                    </div>
                   </div>
                   <div className="text-right text-xs text-gray-500">
                     <div>Date: Nov 19, 2026</div>
