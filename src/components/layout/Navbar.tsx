@@ -13,14 +13,17 @@ import {
   Settings,
   LogOut,
   LogIn,
+  UserPlus,
   Sparkles,
   ChevronRight,
   ShieldCheck,
+  HelpCircle,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useIsClient } from "@/hooks/useIsClient";
 import { allSearchableProducts } from "@/data/products";
 import OrdersModal from "@/components/layout/OrdersModal";
+import AuthModal from "@/components/layout/AuthModal";
 
 export default function Navbar() {
   const { totalItems, setIsCartOpen, addToCart } = useCart();
@@ -28,11 +31,20 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-  // Account Popover States
-  const [isAccountOpen, setIsAccountOpen] = useState(false);
+  // User State
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [currentUser, setCurrentUser] = useState({
+    name: "khun911",
+    email: "khun911@users.noreply.github.com",
+    isVip: true,
+  });
+
+  // Modals & Popovers
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [hoveredMenuItem, setHoveredMenuItem] = useState<string | null>(null);
   const [isOrdersModalOpen, setIsOrdersModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<"signin" | "signup">("signin");
 
   // Notifications
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -62,17 +74,29 @@ export default function Navbar() {
     }, 250);
   };
 
-  // Sign out / Sign in toggle
-  const handleToggleAuth = () => {
-    if (isLoggedIn) {
-      setIsLoggedIn(false);
-      setIsAccountOpen(false);
-      showToast("👋 You have signed out successfully.");
-    } else {
-      setIsLoggedIn(true);
-      setIsAccountOpen(false);
-      showToast("🎉 Welcome back, khun911!");
-    }
+  // Open Auth Modal
+  const openAuth = (mode: "signin" | "signup") => {
+    setAuthModalMode(mode);
+    setIsAuthModalOpen(true);
+    setIsAccountOpen(false);
+  };
+
+  // Sign out
+  const handleSignOut = () => {
+    setIsLoggedIn(false);
+    setIsAccountOpen(false);
+    showToast("👋 You have signed out successfully.");
+  };
+
+  // Login success from AuthModal
+  const handleLoginSuccess = (user: { name: string; email: string }) => {
+    setCurrentUser({
+      name: user.name,
+      email: user.email,
+      isVip: true,
+    });
+    setIsLoggedIn(true);
+    showToast(`🎉 Welcome back, ${user.name}!`);
   };
 
   // Filter products by search query
@@ -141,14 +165,14 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-9 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-9 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
               ) : null}
               <button
                 type="button"
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition cursor-pointer"
                 aria-label="Search"
               >
                 <Search className="w-4 h-4" />
@@ -252,7 +276,7 @@ export default function Navbar() {
 
           {/* Right Actions: Account, Wishlist, Cart */}
           <div className="flex items-center gap-5 sm:gap-7 shrink-0">
-            {/* Account Menu with Hover Detection & Rich Response */}
+            {/* Account Menu with Standard E-Commerce Structure */}
             <div
               ref={accountContainerRef}
               className="relative"
@@ -273,7 +297,7 @@ export default function Navbar() {
                 >
                   <User className="w-4 h-4" />
                 </div>
-                <span className="text-[11px] font-medium mt-0.5 truncate max-w-[56px]">
+                <span className="text-[11px] font-medium mt-0.5 truncate max-w-[62px]">
                   {isLoggedIn ? "Account" : "Sign In"}
                 </span>
               </button>
@@ -281,31 +305,38 @@ export default function Navbar() {
               {/* Account Dropdown Popover */}
               {isAccountOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 text-xs animate-in fade-in slide-in-from-top-2 duration-150"
+                  className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 text-xs animate-in fade-in slide-in-from-top-2 duration-150"
                   onMouseEnter={handleAccountMouseEnter}
                   onMouseLeave={handleAccountMouseLeave}
                 >
                   {isLoggedIn ? (
                     <>
-                      {/* Logged In User Profile Header */}
-                      <div className="px-4 pb-3 border-b border-gray-100">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-gray-900 text-sm">
-                            khun911
-                          </span>
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold rounded-full">
-                            <Sparkles className="w-2.5 h-2.5 text-amber-500" />
-                            VIP Member
-                          </span>
+                      {/* Signed-In Customer Header */}
+                      <div className="px-5 pb-3.5 border-b border-gray-100 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold flex items-center justify-center text-sm shadow-sm shrink-0">
+                          {currentUser.name.charAt(0).toUpperCase()}
                         </div>
-                        <div className="text-[11px] text-gray-500 truncate mt-0.5">
-                          khun911@users.noreply.github.com
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-gray-900 text-sm truncate">
+                              {currentUser.name}
+                            </span>
+                            {currentUser.isVip && (
+                              <span className="inline-flex items-center gap-0.5 px-2 py-0.2 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold rounded-full shrink-0">
+                                <Sparkles className="w-2.5 h-2.5 text-amber-500" />
+                                VIP
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[11px] text-gray-500 truncate mt-0.5">
+                            {currentUser.email}
+                          </div>
                         </div>
                       </div>
 
-                      {/* Interactive Menu List */}
+                      {/* Interactive Customer Navigation */}
                       <div className="py-2 space-y-1">
-                        {/* My Orders with Hover Preview */}
+                        {/* My Orders with live hover status */}
                         <button
                           type="button"
                           onMouseEnter={() => setHoveredMenuItem("orders")}
@@ -314,22 +345,24 @@ export default function Navbar() {
                             setIsOrdersModalOpen(true);
                             setIsAccountOpen(false);
                           }}
-                          className="w-full text-left px-4 py-2 hover:bg-blue-50 text-gray-700 hover:text-blue-600 font-medium transition flex items-center justify-between cursor-pointer group/item"
+                          className="w-full text-left px-5 py-2.5 hover:bg-blue-50/80 text-gray-700 hover:text-blue-600 font-medium transition flex items-center justify-between cursor-pointer group/item"
                         >
-                          <div className="flex items-center gap-2.5">
-                            <PackageIcon className="w-4 h-4 text-gray-400 group-hover/item:text-blue-600 transition" />
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover/item:bg-blue-100/60 flex items-center justify-center text-gray-500 group-hover/item:text-blue-600 transition">
+                              <PackageIcon className="w-4 h-4" />
+                            </div>
                             <div>
-                              <div className="font-semibold text-gray-900 group-hover/item:text-blue-600">
+                              <div className="font-bold text-gray-900 group-hover/item:text-blue-600 text-xs">
                                 My Orders
                               </div>
                               <div className="text-[10px] text-gray-400 group-hover/item:text-blue-500">
                                 {hoveredMenuItem === "orders"
                                   ? "3 orders • 1 In Transit"
-                                  : "Track & manage orders"}
+                                  : "Track shipments & buy again"}
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1.5">
                             <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                               3
                             </span>
@@ -346,12 +379,14 @@ export default function Navbar() {
                             setIsAccountOpen(false);
                             showToast(`❤️ Wishlist contains ${wishlistCount} saved items.`);
                           }}
-                          className="w-full text-left px-4 py-2 hover:bg-blue-50 text-gray-700 hover:text-blue-600 font-medium transition flex items-center justify-between cursor-pointer group/item"
+                          className="w-full text-left px-5 py-2.5 hover:bg-blue-50/80 text-gray-700 hover:text-blue-600 font-medium transition flex items-center justify-between cursor-pointer group/item"
                         >
-                          <div className="flex items-center gap-2.5">
-                            <Heart className="w-4 h-4 text-gray-400 group-hover/item:text-rose-500 transition" />
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover/item:bg-rose-100/60 flex items-center justify-center text-gray-500 group-hover/item:text-rose-600 transition">
+                              <Heart className="w-4 h-4" />
+                            </div>
                             <div>
-                              <div className="font-semibold text-gray-900 group-hover/item:text-rose-600">
+                              <div className="font-bold text-gray-900 group-hover/item:text-rose-600 text-xs">
                                 Saved Wishlist
                               </div>
                               <div className="text-[10px] text-gray-400">
@@ -361,7 +396,7 @@ export default function Navbar() {
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1.5">
                             <span className="bg-rose-100 text-rose-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                               {wishlistCount}
                             </span>
@@ -376,18 +411,20 @@ export default function Navbar() {
                           onMouseLeave={() => setHoveredMenuItem(null)}
                           onClick={() => {
                             setIsAccountOpen(false);
-                            showToast("⚙️ Account settings & preferences opened.");
+                            showToast("⚙️ Account Settings: Profile & Security verified.");
                           }}
-                          className="w-full text-left px-4 py-2 hover:bg-blue-50 text-gray-700 hover:text-blue-600 font-medium transition flex items-center justify-between cursor-pointer group/item"
+                          className="w-full text-left px-5 py-2.5 hover:bg-blue-50/80 text-gray-700 hover:text-blue-600 font-medium transition flex items-center justify-between cursor-pointer group/item"
                         >
-                          <div className="flex items-center gap-2.5">
-                            <Settings className="w-4 h-4 text-gray-400 group-hover/item:text-blue-600 transition" />
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover/item:bg-blue-100/60 flex items-center justify-center text-gray-500 group-hover/item:text-blue-600 transition">
+                              <Settings className="w-4 h-4" />
+                            </div>
                             <div>
-                              <div className="font-semibold text-gray-900 group-hover/item:text-blue-600">
+                              <div className="font-bold text-gray-900 group-hover/item:text-blue-600 text-xs">
                                 Account Settings
                               </div>
                               <div className="text-[10px] text-gray-400">
-                                Addresses, security & payments
+                                Profile, address & payments
                               </div>
                             </div>
                           </div>
@@ -395,68 +432,138 @@ export default function Navbar() {
                         </button>
                       </div>
 
-                      {/* Sign Out with Interactive Alert State */}
-                      <div className="pt-2 border-t border-gray-100 px-3">
+                      {/* Sign Out Button */}
+                      <div className="pt-2 border-t border-gray-100 px-4">
                         <button
                           type="button"
                           onMouseEnter={() => setHoveredMenuItem("signout")}
                           onMouseLeave={() => setHoveredMenuItem(null)}
-                          onClick={handleToggleAuth}
-                          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 font-medium transition cursor-pointer group/signout"
+                          onClick={handleSignOut}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 font-semibold transition cursor-pointer group/signout"
                         >
                           <div className="flex items-center gap-2">
                             <LogOut className="w-3.5 h-3.5 text-red-500 group-hover/signout:scale-110 transition-transform" />
-                            <div className="text-left">
-                              <span className="font-bold">Sign Out</span>
-                              {hoveredMenuItem === "signout" && (
-                                <div className="text-[10px] text-red-400">
-                                  End session for khun911
-                                </div>
-                              )}
-                            </div>
+                            <span>Sign Out</span>
                           </div>
-                          <span className="text-[10px] text-red-400 opacity-80">
-                            Session active
+                          <span className="text-[10px] text-red-400 font-normal">
+                            Active Session
                           </span>
                         </button>
                       </div>
                     </>
                   ) : (
-                    /* Guest Mode Popover */
-                    <div className="p-4 space-y-3">
+                    /* Standard Professional Guest Mode Menu */
+                    <div className="p-5 space-y-4">
+                      {/* Header with Standard E-commerce Branding */}
                       <div className="space-y-1">
-                        <div className="font-bold text-gray-900 text-sm">
-                          Welcome, Shopper!
+                        <div className="font-bold text-gray-900 text-sm flex items-center justify-between">
+                          <span>Welcome to Enjoy-Mart</span>
+                          <span className="text-[10px] text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full">
+                            Guest
+                          </span>
                         </div>
                         <p className="text-[11px] text-gray-500 leading-relaxed">
-                          Sign in to view your order history, manage wishlist, and get exclusive Enjoy-Mart VIP discounts.
+                          Sign in to manage orders, track deliveries, and access member-only deals.
                         </p>
                       </div>
 
-                      <div className="space-y-2 pt-1">
+                      {/* Standard Primary Sign In & Register Buttons */}
+                      <div className="grid grid-cols-2 gap-2 pt-1">
                         <button
                           type="button"
-                          onClick={handleToggleAuth}
-                          className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs shadow-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                          onClick={() => openAuth("signin")}
+                          className="py-2.5 px-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md shadow-blue-500/20 flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-95"
                         >
                           <LogIn className="w-3.5 h-3.5" />
-                          <span>Sign In as khun911</span>
+                          <span>Sign In</span>
                         </button>
+
+                        <button
+                          type="button"
+                          onClick={() => openAuth("signup")}
+                          className="py-2.5 px-3 bg-gray-50 hover:bg-gray-100 text-gray-800 font-bold rounded-xl text-xs border border-gray-200 transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
+                        >
+                          <UserPlus className="w-3.5 h-3.5 text-gray-500" />
+                          <span>Register</span>
+                        </button>
+                      </div>
+
+                      {/* Standard Guest Service Shortcuts */}
+                      <div className="pt-3 border-t border-gray-100 space-y-1">
+                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-1">
+                          Quick Services
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsOrdersModalOpen(true);
+                            setIsAccountOpen(false);
+                          }}
+                          className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-gray-50 text-gray-700 flex items-center justify-between text-xs font-medium cursor-pointer transition"
+                        >
+                          <div className="flex items-center gap-2">
+                            <PackageIcon className="w-3.5 h-3.5 text-gray-400" />
+                            <span>Track an Order</span>
+                          </div>
+                          <ChevronRight className="w-3 h-3 text-gray-300" />
+                        </button>
+
                         <button
                           type="button"
                           onClick={() => {
                             setIsAccountOpen(false);
-                            showToast("📝 Registration form opened.");
+                            const el = document.getElementById("deals");
+                            if (el) el.scrollIntoView({ behavior: "smooth" });
                           }}
-                          className="w-full py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-xl text-xs border border-gray-200 transition cursor-pointer text-center"
+                          className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-gray-50 text-gray-700 flex items-center justify-between text-xs font-medium cursor-pointer transition"
                         >
-                          Create New Account
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                            <span>VIP Club & Promotions</span>
+                          </div>
+                          <ChevronRight className="w-3 h-3 text-gray-300" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsAccountOpen(false);
+                            showToast("📞 Customer Support: +1 (800) 123-4567 (24/7)");
+                          }}
+                          className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-gray-50 text-gray-700 flex items-center justify-between text-xs font-medium cursor-pointer transition"
+                        >
+                          <div className="flex items-center gap-2">
+                            <HelpCircle className="w-3.5 h-3.5 text-gray-400" />
+                            <span>Help Center & FAQ</span>
+                          </div>
+                          <ChevronRight className="w-3 h-3 text-gray-300" />
                         </button>
                       </div>
 
-                      <div className="pt-2 border-t border-gray-100 text-[10px] text-gray-400 flex items-center justify-center gap-1">
+                      {/* 1-Click Demo VIP Login Button */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCurrentUser({
+                            name: "khun911",
+                            email: "khun911@users.noreply.github.com",
+                            isVip: true,
+                          });
+                          setIsLoggedIn(true);
+                          setIsAccountOpen(false);
+                          showToast("🎉 Welcome back, khun911!");
+                        }}
+                        className="w-full py-2 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 text-blue-700 border border-blue-200 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                        <span>1-Click Demo Login (khun911)</span>
+                      </button>
+
+                      {/* Standard Security Footer */}
+                      <div className="pt-2 border-t border-gray-100 text-[10px] text-gray-400 flex items-center justify-center gap-1.5">
                         <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                        <span>100% Secure Checkout Guaranteed</span>
+                        <span>256-bit SSL Encrypted Shopping</span>
                       </div>
                     </div>
                   )}
@@ -524,6 +631,14 @@ export default function Navbar() {
       <OrdersModal
         isOpen={isOrdersModalOpen}
         onClose={() => setIsOrdersModalOpen(false)}
+      />
+
+      {/* Standard E-Commerce Authentication Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        initialMode={authModalMode}
+        onClose={() => setIsAuthModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
       />
     </>
   );
