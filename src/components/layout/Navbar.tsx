@@ -10,7 +10,6 @@ import {
   ShoppingCart,
   X,
   Package as PackageIcon,
-  Settings,
   LogOut,
   LogIn,
   UserPlus,
@@ -33,6 +32,7 @@ import OrdersModal from "@/components/layout/OrdersModal";
 import AuthModal from "@/components/layout/AuthModal";
 import ClientFeedbackModal from "@/components/feedback/ClientFeedbackModal";
 import AdminFeedbackDashboard from "@/components/admin/AdminFeedbackDashboard";
+import ProfileModal from "@/components/layout/ProfileModal";
 import { useLanguage, SUPPORTED_LANGUAGES, LanguageInfo } from "@/context/LanguageContext";
 
 export default function Navbar() {
@@ -60,6 +60,7 @@ export default function Navbar() {
   const [hoveredMenuItem, setHoveredMenuItem] = useState<string | null>(null);
   const [isOrdersModalOpen, setIsOrdersModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<"signin" | "signup">("signin");
 
   // Feedback & Admin Watchtower States
@@ -355,28 +356,40 @@ export default function Navbar() {
                 >
                   {isLoggedIn ? (
                     <>
-                      {/* Signed-In Customer Header */}
-                      <div className="px-5 pb-3.5 border-b border-gray-100 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold flex items-center justify-center text-sm shadow-sm shrink-0">
-                          {currentUser.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-bold text-gray-900 text-sm truncate">
-                              {currentUser.name}
-                            </span>
-                            {currentUser.isVip && (
-                              <span className="inline-flex items-center gap-0.5 px-2 py-0.2 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold rounded-full shrink-0">
-                                <Sparkles className="w-2.5 h-2.5 text-amber-500" />
-                                VIP
+                      {/* Signed-In Customer Header & Profile Shortcut */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsProfileModalOpen(true);
+                          setIsAccountOpen(false);
+                        }}
+                        className="w-full text-left px-5 pb-3.5 border-b border-gray-100 flex items-center justify-between gap-3 hover:bg-blue-50/50 transition cursor-pointer group/prof"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold flex items-center justify-center text-sm shadow-sm shrink-0 group-hover/prof:scale-105 transition-transform">
+                            {currentUser.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-bold text-gray-900 text-sm truncate group-hover/prof:text-blue-600 transition">
+                                {currentUser.name}
                               </span>
-                            )}
-                          </div>
-                          <div className="text-[11px] text-gray-500 truncate mt-0.5">
-                            {currentUser.email}
+                              {currentUser.isVip && (
+                                <span className="inline-flex items-center gap-0.5 px-2 py-0.2 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold rounded-full shrink-0">
+                                  <Sparkles className="w-2.5 h-2.5 text-amber-500" />
+                                  VIP
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-gray-500 truncate mt-0.5">
+                              {currentUser.email}
+                            </div>
                           </div>
                         </div>
-                      </div>
+                        <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md shrink-0">
+                          Profile
+                        </span>
+                      </button>
 
                       {/* Interactive Customer Navigation */}
                       <div className="py-2 space-y-1">
@@ -504,27 +517,27 @@ export default function Navbar() {
                           </span>
                         </button>
 
-                        {/* Account Settings */}
+                        {/* Client Profile & Settings */}
                         <button
                           type="button"
                           onMouseEnter={() => setHoveredMenuItem("settings")}
                           onMouseLeave={() => setHoveredMenuItem(null)}
                           onClick={() => {
+                            setIsProfileModalOpen(true);
                             setIsAccountOpen(false);
-                            showToast("⚙️ Account Settings: Profile & Security verified.");
                           }}
                           className="w-full text-left px-5 py-2.5 hover:bg-blue-50/80 text-gray-700 hover:text-blue-600 font-medium transition flex items-center justify-between cursor-pointer group/item"
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover/item:bg-blue-100/60 flex items-center justify-center text-gray-500 group-hover/item:text-blue-600 transition">
-                              <Settings className="w-4 h-4" />
+                              <User className="w-4 h-4" />
                             </div>
                             <div>
                               <div className="font-bold text-gray-900 group-hover/item:text-blue-600 text-xs">
-                                Account Settings
+                                Client Profile & Addresses
                               </div>
                               <div className="text-[10px] text-gray-400">
-                                Profile, address & payments
+                                Personal details, cards & addresses
                               </div>
                             </div>
                           </div>
@@ -800,6 +813,17 @@ export default function Navbar() {
         isOpen={isAdminDashboardOpen}
         onClose={() => setIsAdminDashboardOpen(false)}
         feedbacks={feedbacks}
+      />
+
+      {/* Client Profile & Account Settings Modal */}
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        currentUser={currentUser}
+        onUpdateUser={(updated) => {
+          setCurrentUser((prev) => ({ ...prev, ...updated }));
+          showToast(`👤 Client Profile updated: ${updated.name}`);
+        }}
       />
     </>
   );
