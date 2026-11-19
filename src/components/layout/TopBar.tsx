@@ -10,9 +10,7 @@ interface TopBarProps {
 
 export default function TopBar({ onOpenOrders, onOpenContact }: TopBarProps) {
   const [currency, setCurrency] = useState("USD ($)");
-  const [language, setLanguage] = useState("English");
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
-  const [isLangOpen, setIsLangOpen] = useState(false);
 
   return (
     <div className="w-full bg-slate-900 text-gray-300 text-xs py-2 border-b border-slate-800">
@@ -75,7 +73,6 @@ export default function TopBar({ onOpenOrders, onOpenContact }: TopBarProps) {
               type="button"
               onClick={() => {
                 setIsCurrencyOpen(!isCurrencyOpen);
-                setIsLangOpen(false);
               }}
               className="flex items-center gap-1 hover:text-white transition text-gray-300 cursor-pointer"
             >
@@ -97,40 +94,6 @@ export default function TopBar({ onOpenOrders, onOpenContact }: TopBarProps) {
                     }`}
                   >
                     {curr}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Language Dropdown */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => {
-                setIsLangOpen(!isLangOpen);
-                setIsCurrencyOpen(false);
-              }}
-              className="flex items-center gap-1 hover:text-white transition text-gray-300 cursor-pointer"
-            >
-              <span>{language}</span>
-              <ChevronDown className="w-3 h-3 text-gray-400" />
-            </button>
-            {isLangOpen && (
-              <div className="absolute right-0 mt-2 w-28 bg-white text-gray-800 rounded-lg shadow-xl border border-gray-100 py-1 z-50 text-xs">
-                {["English", "Español", "Français", "Deutsch"].map((lang) => (
-                  <button
-                    key={lang}
-                    type="button"
-                    onClick={() => {
-                      setLanguage(lang);
-                      setIsLangOpen(false);
-                    }}
-                    className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-blue-600 transition cursor-pointer ${
-                      language === lang ? "font-bold text-blue-600" : ""
-                    }`}
-                  >
-                    {lang}
                   </button>
                 ))}
               </div>

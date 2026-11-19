@@ -20,6 +20,8 @@ import {
   HelpCircle,
   Star,
   Award,
+  Globe,
+  ChevronDown,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
@@ -32,12 +34,30 @@ import AuthModal from "@/components/layout/AuthModal";
 import ClientFeedbackModal from "@/components/feedback/ClientFeedbackModal";
 import AdminFeedbackDashboard from "@/components/admin/AdminFeedbackDashboard";
 
+const LANGUAGES = [
+  { code: "en", name: "English", native: "English (US)", flag: "🇺🇸" },
+  { code: "km", name: "Khmer", native: "ភាសាខ្មែរ", flag: "🇰🇭" },
+  { code: "zh", name: "Chinese", native: "中文 (简体)", flag: "🇨🇳" },
+  { code: "fr", name: "French", native: "Français", flag: "🇫🇷" },
+  { code: "es", name: "Spanish", native: "Español", flag: "🇪🇸" },
+  { code: "de", name: "German", native: "Deutsch", flag: "🇩🇪" },
+  { code: "ja", name: "Japanese", native: "日本語", flag: "🇯🇵" },
+  { code: "ko", name: "Korean", native: "한국어", flag: "🇰🇷" },
+  { code: "th", name: "Thai", native: "ภาษาไทย", flag: "🇹🇭" },
+  { code: "vi", name: "Vietnamese", native: "Tiếng Việt", flag: "🇻🇳" },
+];
+
 export default function Navbar() {
   const { totalItems, setIsCartOpen, addToCart } = useCart();
   const { totalWishlistItems, setIsWishlistOpen } = useWishlist();
   const isClient = useIsClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  // Language state
+  const [selectedLang, setSelectedLang] = useState(LANGUAGES[0]);
+  const [isLangOpen, setIsLangOpen] = useState(false);
+  const langDropdownRef = useRef<HTMLDivElement>(null);
 
   // User State
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -140,6 +160,12 @@ export default function Navbar() {
         !accountContainerRef.current.contains(e.target as Node)
       ) {
         setIsAccountOpen(false);
+      }
+      if (
+        langDropdownRef.current &&
+        !langDropdownRef.current.contains(e.target as Node)
+      ) {
+        setIsLangOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -656,24 +682,6 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Wishlist Button with Real Reactive Badge & Drawer Trigger */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setIsWishlistOpen(true)}
-                className="flex flex-col items-center group text-gray-700 hover:text-rose-600 transition relative cursor-pointer"
-                title="View Saved Wishlist"
-              >
-                <div className="relative">
-                  <Heart className="w-5 h-5 text-gray-600 group-hover:text-rose-600 transition" />
-                  <span className="absolute -top-1.5 -right-2 bg-rose-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
-                    {isClient ? totalWishlistItems : 0}
-                  </span>
-                </div>
-                <span className="text-[11px] font-medium mt-1">Wishlist</span>
-              </button>
-            </div>
-
             {/* Cart Button with Total Items */}
             <button
               type="button"
@@ -688,6 +696,69 @@ export default function Navbar() {
               </div>
               <span className="text-[11px] font-medium mt-1">Cart</span>
             </button>
+
+            {/* Language Selector (Moved to after Cart on TopBar) */}
+            <div ref={langDropdownRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setIsLangOpen(!isLangOpen)}
+                className="flex flex-col items-center group text-gray-700 hover:text-blue-600 transition relative cursor-pointer"
+                title="Select Language"
+              >
+                <div className="relative flex items-center justify-center h-5">
+                  <span className="text-lg leading-none select-none">{selectedLang.flag}</span>
+                </div>
+                <div className="flex items-center gap-0.5 text-[11px] font-semibold mt-1 text-gray-700 group-hover:text-blue-600">
+                  <span>{selectedLang.code.toUpperCase()}</span>
+                  <ChevronDown className={`w-2.5 h-2.5 text-gray-400 group-hover:text-blue-600 transition-transform ${isLangOpen ? "rotate-180" : ""}`} />
+                </div>
+              </button>
+
+              {/* Language Dropdown Menu with Multiple Languages */}
+              {isLangOpen && (
+                <div className="absolute right-0 mt-3 w-60 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-3.5 py-2 border-b border-gray-100 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-xs font-bold text-gray-800">
+                      <Globe className="w-3.5 h-3.5 text-blue-600" /> Choose Language
+                    </span>
+                    <span className="text-[10px] bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded-full">
+                      {LANGUAGES.length} Languages
+                    </span>
+                  </div>
+
+                  <div className="max-h-72 overflow-y-auto py-1 divide-y divide-gray-50">
+                    {LANGUAGES.map((lang) => {
+                      const isSelected = selectedLang.code === lang.code;
+                      return (
+                        <button
+                          key={lang.code}
+                          type="button"
+                          onClick={() => {
+                            setSelectedLang(lang);
+                            setIsLangOpen(false);
+                            showToast(`🌐 Language changed to ${lang.native} (${lang.name})`);
+                          }}
+                          className={`w-full text-left px-3.5 py-2.5 flex items-center justify-between hover:bg-blue-50/80 transition cursor-pointer text-xs ${
+                            isSelected ? "bg-blue-50/70 text-blue-700 font-bold" : "text-gray-700"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg">{lang.flag}</span>
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-gray-900">{lang.native}</span>
+                              <span className="text-[10px] text-gray-400">{lang.name}</span>
+                            </div>
+                          </div>
+                          {isSelected && (
+                            <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
