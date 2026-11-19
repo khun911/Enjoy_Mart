@@ -33,7 +33,6 @@ export default function CartDrawer() {
 
   const [currency, setCurrency] = useState("USD");
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [showAllCurrencies, setShowAllCurrencies] = useState(false);
 
   // Free shipping threshold at $50
   const freeShippingThreshold = 50;
@@ -41,9 +40,6 @@ export default function CartDrawer() {
   const remainingForFreeShipping = Math.max(0, freeShippingThreshold - totalPrice);
 
   if (!isCartOpen) return null;
-
-  const currentCurrencyConfig = CURRENCIES[currency] || CURRENCIES.USD;
-  const popularCurrencies = ["USD", "KHR", "EUR", "GBP", "JPY", "THB"];
 
   return (
     <>
@@ -87,98 +83,28 @@ export default function CartDrawer() {
               </button>
             </div>
 
-            {/* IMPROVED CLIENT MONEY & CURRENCY EXCHANGE SELECTOR */}
-            <div className="bg-gradient-to-br from-blue-50/90 via-indigo-50/60 to-blue-50/90 p-3.5 border-b border-blue-100 shrink-0 space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-blue-900 font-bold text-xs">
-                  <Coins className="w-4 h-4 text-blue-600" />
-                  <span>Choose Your Payment Money:</span>
-                </div>
-                {/* Dropdown toggle for all currencies */}
-                <button
-                  type="button"
-                  onClick={() => setShowAllCurrencies(!showAllCurrencies)}
-                  className="text-[11px] font-bold text-blue-600 hover:text-blue-800 flex items-center gap-0.5 cursor-pointer bg-white px-2 py-0.5 rounded-md border border-blue-200 shadow-2xs"
+            {/* CLEAN COMPACT MONEY & CURRENCY SELECTOR */}
+            <div className="bg-gradient-to-r from-blue-50/90 via-indigo-50/50 to-blue-50/90 px-4 py-2.5 border-b border-blue-100/80 shrink-0 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-1.5 text-blue-950 font-bold text-xs">
+                <Coins className="w-4 h-4 text-blue-600" />
+                <span>Payment Currency:</span>
+              </div>
+
+              {/* Clean Native Dropdown */}
+              <div className="relative">
+                <select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  aria-label="Select Payment Currency"
+                  className="bg-white border border-blue-200 text-blue-900 font-bold text-xs py-1.5 pl-2.5 pr-8 rounded-lg shadow-2xs focus:outline-none focus:border-blue-600 cursor-pointer appearance-none"
                 >
-                  <span>{currentCurrencyConfig.flag} {currency} ({currentCurrencyConfig.symbol})</span>
-                  <ChevronDown className={`w-3 h-3 transition-transform ${showAllCurrencies ? "rotate-180" : ""}`} />
-                </button>
-              </div>
-
-              {/* Fast Select Popular Money Pills */}
-              <div className="flex flex-wrap gap-1">
-                {popularCurrencies.map((cur) => {
-                  const cfg = CURRENCIES[cur];
-                  const isSelected = currency === cur;
-                  return (
-                    <button
-                      key={cur}
-                      type="button"
-                      onClick={() => {
-                        setCurrency(cur);
-                        setShowAllCurrencies(false);
-                      }}
-                      className={`px-2 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 cursor-pointer ${
-                        isSelected
-                          ? "bg-blue-600 text-white shadow-xs scale-102"
-                          : "bg-white text-gray-700 hover:text-blue-600 hover:bg-blue-100/50 border border-gray-200/80"
-                      }`}
-                    >
-                      <span>{cfg.flag}</span>
-                      <span>{cur}</span>
-                      <span className="opacity-75">{cfg.symbol}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Extended Dropdown: Select Any World Money */}
-              {showAllCurrencies && (
-                <div className="p-2 bg-white rounded-xl border border-blue-200 shadow-lg space-y-1 animate-in fade-in zoom-in-95 duration-150">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block px-1">
-                    All Available Currencies
-                  </span>
-                  <div className="grid grid-cols-2 gap-1 max-h-36 overflow-y-auto pr-1">
-                    {Object.keys(CURRENCIES).map((cur) => {
-                      const cfg = CURRENCIES[cur];
-                      const isSelected = currency === cur;
-                      return (
-                        <button
-                          key={cur}
-                          type="button"
-                          onClick={() => {
-                            setCurrency(cur);
-                            setShowAllCurrencies(false);
-                          }}
-                          className={`p-1.5 rounded-lg text-left text-xs flex items-center justify-between cursor-pointer transition ${
-                            isSelected
-                              ? "bg-blue-600 text-white font-bold"
-                              : "hover:bg-blue-50 text-gray-800"
-                          }`}
-                        >
-                          <span className="flex items-center gap-1.5 truncate">
-                            <span>{cfg.flag}</span>
-                            <span className="truncate">{cfg.name}</span>
-                          </span>
-                          <span className="font-mono text-[11px] opacity-80">{cfg.symbol}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Live Money Exchange Rate & Calculation Indicator */}
-              <div className="bg-white/80 p-2 rounded-xl border border-blue-100 flex items-center justify-between text-[11px] text-gray-600 shadow-2xs">
-                <div className="flex items-center gap-1.5">
-                  <RefreshCw className="w-3 h-3 text-blue-600 shrink-0" />
-                  <span>
-                    Exchange Rate: <strong>1 USD = {currentCurrencyConfig.rate.toLocaleString()} {currency}</strong>
-                  </span>
-                </div>
-                <span className="font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">
-                  {currentCurrencyConfig.symbol} {currentCurrencyConfig.name}
-                </span>
+                  {Object.keys(CURRENCIES).map((cur) => (
+                    <option key={cur} value={cur}>
+                      {CURRENCIES[cur].flag} {cur} ({CURRENCIES[cur].symbol}) - {CURRENCIES[cur].name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
             </div>
 
