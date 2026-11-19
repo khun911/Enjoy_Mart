@@ -1,10 +1,47 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { Mail, Phone, MapPin, Heart } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Heart,
+  CheckCircle2,
+  Sparkles,
+  Loader2,
+  Copy,
+  Check,
+} from "lucide-react";
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "subscribed">("idle");
+  const [copied, setCopied] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim() || !email.includes("@")) {
+      setErrorMessage("Please enter a valid email address.");
+      return;
+    }
+
+    setErrorMessage("");
+    setStatus("loading");
+
+    // Simulate instant VIP newsletter subscription
+    setTimeout(() => {
+      setStatus("subscribed");
+    }, 800);
+  };
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText("ENJOY20");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <footer className="w-full bg-gray-900 text-gray-300 mt-20 pt-16 pb-12 border-t border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -108,7 +145,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Newsletter */}
+          {/* Interactive Responsive Newsletter */}
           <div className="space-y-3">
             <h4 className="text-sm font-bold text-white tracking-wider uppercase">
               Newsletter
@@ -116,19 +153,86 @@ export default function Footer() {
             <p className="text-xs text-gray-400 leading-relaxed">
               Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.
             </p>
-            <form onSubmit={(e) => e.preventDefault()} className="space-y-2">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="w-full bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
-              />
-              <button
-                type="submit"
-                className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs transition cursor-pointer"
-              >
-                Subscribe
-              </button>
-            </form>
+
+            {status !== "subscribed" ? (
+              <form onSubmit={handleSubscribe} className="space-y-2">
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (errorMessage) setErrorMessage("");
+                  }}
+                  placeholder="Enter your email"
+                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:bg-gray-850 transition"
+                />
+                {errorMessage && (
+                  <p className="text-[11px] text-red-400">{errorMessage}</p>
+                )}
+                <button
+                  type="submit"
+                  disabled={status === "loading"}
+                  className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-semibold rounded-xl text-xs transition cursor-pointer flex items-center justify-center gap-2 shadow-sm disabled:opacity-60"
+                >
+                  {status === "loading" ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Subscribing...</span>
+                    </>
+                  ) : (
+                    <span>Subscribe</span>
+                  )}
+                </button>
+              </form>
+            ) : (
+              /* Success Response Box to Client */
+              <div className="p-3.5 bg-gradient-to-br from-emerald-950/60 to-gray-800 rounded-xl border border-emerald-500/30 text-xs space-y-2.5 animate-in fade-in zoom-in-95 duration-200">
+                <div className="flex items-center gap-2 text-emerald-400 font-bold">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>Subscribed Successfully!</span>
+                </div>
+                <p className="text-[11px] text-gray-300 leading-snug">
+                  Welcome to Enjoy-Mart! We sent your exclusive 20% discount voucher to <strong className="text-white">{email}</strong>.
+                </p>
+
+                {/* Instant Voucher Code */}
+                <div className="bg-gray-900/90 p-2 rounded-lg border border-gray-700 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-[11px]">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="font-mono font-bold text-amber-300 tracking-wider">ENJOY20</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCopyCode}
+                    className="text-[10px] font-bold text-blue-400 hover:text-blue-300 flex items-center gap-1 cursor-pointer"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-3 h-3 text-emerald-400" />
+                        <span className="text-emerald-400">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3" />
+                        <span>Copy Code</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStatus("idle");
+                    setEmail("");
+                  }}
+                  className="text-[10px] text-gray-400 hover:text-gray-300 underline block cursor-pointer pt-0.5"
+                >
+                  Subscribe another email
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
