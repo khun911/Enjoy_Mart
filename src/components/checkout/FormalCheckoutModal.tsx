@@ -337,7 +337,7 @@ export default function FormalCheckoutModal({
                   {/* Card Details Fields */}
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      <label className="block text-xs font-bold text-slate-800 mb-1">
                         Name on Visa / Card
                       </label>
                       <input
@@ -346,15 +346,15 @@ export default function FormalCheckoutModal({
                         value={cardHolder}
                         onChange={(e) => setCardHolder(e.target.value)}
                         placeholder="e.g. KHUN 911"
-                        className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-2xs"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center justify-between">
+                      <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center justify-between">
                         <span>Card Number</span>
-                        <span className="text-[11px] text-gray-400 flex items-center gap-1">
-                          <Lock className="w-3 h-3 text-emerald-500" /> Bank Level Security
+                        <span className="text-[11px] text-slate-500 font-semibold flex items-center gap-1">
+                          <Lock className="w-3 h-3 text-emerald-600" /> Bank Level Security
                         </span>
                       </label>
                       <div className="relative">
@@ -365,9 +365,9 @@ export default function FormalCheckoutModal({
                           onChange={handleCardNumberChange}
                           placeholder="4532 8920 1840 9182"
                           maxLength={19}
-                          className="w-full pl-3.5 pr-14 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono tracking-wider focus:outline-none focus:border-blue-600 focus:bg-white transition"
+                          className="w-full pl-3.5 pr-14 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono font-bold text-slate-900 placeholder:text-slate-400 tracking-wider focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-2xs"
                         />
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 font-bold italic text-blue-700 text-xs">
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 font-black italic text-blue-700 text-xs">
                           {paymentMethod === "visa" ? "VISA" : "MC"}
                         </div>
                       </div>
@@ -375,7 +375,7 @@ export default function FormalCheckoutModal({
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        <label className="block text-xs font-bold text-slate-800 mb-1">
                           Expiration (MM/YY)
                         </label>
                         <input
@@ -385,14 +385,14 @@ export default function FormalCheckoutModal({
                           onChange={handleExpiryChange}
                           placeholder="MM/YY"
                           maxLength={5}
-                          className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:border-blue-600 focus:bg-white transition"
+                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-2xs"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center justify-between">
+                        <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center justify-between">
                           <span>CVV / CVC</span>
-                          <span className="text-[10px] text-gray-400">3 Digits</span>
+                          <span className="text-[10px] text-slate-500 font-semibold">3 Digits</span>
                         </label>
                         <input
                           type="password"
@@ -401,7 +401,7 @@ export default function FormalCheckoutModal({
                           onChange={(e) => setCvv(e.target.value.slice(0, 4))}
                           placeholder="•••"
                           maxLength={4}
-                          className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:border-blue-600 focus:bg-white transition"
+                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-2xs"
                         />
                       </div>
                     </div>
@@ -409,7 +409,7 @@ export default function FormalCheckoutModal({
                     {/* Client Email & Shipping Address */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                       <div>
-                        <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        <label className="block text-xs font-bold text-slate-800 mb-1">
                           Notification Email
                         </label>
                         <input
@@ -418,11 +418,11 @@ export default function FormalCheckoutModal({
                           value={clientEmail}
                           onChange={(e) => setClientEmail(e.target.value)}
                           placeholder="client@email.com"
-                          className="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-blue-600 focus:bg-white transition"
+                          className="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-2xs"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        <label className="block text-xs font-bold text-slate-800 mb-1">
                           Delivery Address
                         </label>
                         <input
@@ -431,7 +431,7 @@ export default function FormalCheckoutModal({
                           value={shippingAddress}
                           onChange={(e) => setShippingAddress(e.target.value)}
                           placeholder="Address, City, Country"
-                          className="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-blue-600 focus:bg-white transition"
+                          className="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-2xs"
                         />
                       </div>
                     </div>
@@ -493,12 +493,12 @@ export default function FormalCheckoutModal({
                         value={promoCode}
                         onChange={(e) => setPromoCode(e.target.value)}
                         placeholder="Try 'ENJOY20'"
-                        className="flex-1 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-mono uppercase focus:outline-none focus:border-blue-600"
+                        className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-mono font-bold text-slate-900 placeholder:text-slate-400 uppercase focus:outline-none focus:border-blue-600 shadow-2xs"
                       />
                       <button
                         type="button"
                         onClick={handleApplyPromo}
-                        className="px-3 py-1.5 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-lg transition cursor-pointer"
+                        className="px-3 py-1.5 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-lg transition cursor-pointer"
                       >
                         Apply
                       </button>
