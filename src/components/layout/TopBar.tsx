@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { Phone, Mail, Sparkles } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Phone, Mail, Sparkles, Maximize2, Minimize2 } from "lucide-react";
 
 interface TopBarProps {
   onOpenOrders?: () => void;
@@ -9,9 +9,30 @@ interface TopBarProps {
 }
 
 export default function TopBar({ onOpenOrders, onOpenContact }: TopBarProps) {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+  };
+
   return (
     <div className="w-full bg-slate-900 text-gray-300 text-xs py-2 border-b border-slate-800">
-      <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 flex items-center justify-between gap-4">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 flex items-center justify-between gap-4">
         {/* Left: Contact Info & Notice */}
         <div className="flex items-center gap-6">
           <div className="hidden md:flex items-center gap-4 text-gray-400">
@@ -44,8 +65,27 @@ export default function TopBar({ onOpenOrders, onOpenContact }: TopBarProps) {
           </div>
         </div>
 
-        {/* Right: Quick Links */}
+        {/* Right: Quick Links & Fullscreen */}
         <div className="flex items-center gap-4 sm:gap-6 shrink-0 text-gray-400">
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            className="flex items-center gap-1.5 hover:text-white transition cursor-pointer text-blue-300 hover:text-blue-200 font-medium"
+            title={isFullscreen ? "Exit Fullscreen" : "Full Screen Mode"}
+          >
+            {isFullscreen ? (
+              <>
+                <Minimize2 className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden sm:inline text-[11px]">Exit Fullscreen</span>
+              </>
+            ) : (
+              <>
+                <Maximize2 className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden sm:inline text-[11px]">Full Screen</span>
+              </>
+            )}
+          </button>
+          <span className="text-gray-700">|</span>
           <button
             type="button"
             onClick={onOpenOrders}

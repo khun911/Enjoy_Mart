@@ -164,7 +164,7 @@ export default function Navbar() {
   return (
     <>
       <header className="w-full bg-white border-b border-gray-100 sticky top-0 z-40">
-        <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 py-3.5 flex items-center justify-between gap-4 md:gap-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-3.5 flex items-center justify-between gap-4 md:gap-8">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-2 group shrink-0">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">

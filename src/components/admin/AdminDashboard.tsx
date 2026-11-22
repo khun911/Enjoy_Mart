@@ -411,7 +411,7 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
         </header>
 
         {/* Dashboard Body Container */}
-        <div className="p-6 sm:p-8 space-y-6 w-full max-w-[1920px] mx-auto">
+        <div className="p-6 sm:p-8 space-y-6 w-full">
           {/* =========================================================================
              TAB: DASHBOARD (Overview with Visual Charts matching template)
              ========================================================================= */}

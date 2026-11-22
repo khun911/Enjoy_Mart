@@ -93,7 +93,7 @@ export default function Hero() {
       </div>
 
       {/* Main Slide Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center h-full relative z-10">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center h-full relative z-10 flex-1 my-auto">
         {/* Left Column Text */}
         <div className="lg:col-span-7 flex flex-col items-start space-y-4">
           <div className="inline-flex items-center gap-2">

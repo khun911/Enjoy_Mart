@@ -58,10 +58,10 @@ export default function Home() {
         onOpenContact={handleOpenContact}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 py-6 space-y-10 sm:space-y-14">
-        {/* Top Hero Row with Sidebar */}
-        <section className="flex flex-col lg:flex-row items-stretch gap-6 w-full">
+      {/* Main Content Area: Edge-to-Edge 100% Full Width & Viewport-Matched Height */}
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-5 space-y-10 sm:space-y-14">
+        {/* Top Hero Row with Sidebar - Matches 100% Screen Height */}
+        <section className="flex flex-col lg:flex-row items-stretch gap-6 w-full lg:min-h-[calc(100vh-215px)]">
           {/* Left Category Sidebar */}
           <div
             className={`transition-all duration-300 lg:self-stretch ${

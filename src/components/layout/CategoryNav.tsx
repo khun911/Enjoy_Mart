@@ -65,7 +65,7 @@ export default function CategoryNav({
 
   return (
     <div className="w-full bg-white border-b border-slate-200/80 sticky top-[73px] z-30 backdrop-blur-md bg-white/95 shadow-xs">
-      <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 flex items-center justify-between gap-6">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 flex items-center justify-between gap-6">
         <div className="flex items-center gap-6">
           {/* Formal All Departments Toggle Button */}
           <div className="w-64 shrink-0 hidden lg:block">
