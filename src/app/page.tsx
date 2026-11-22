@@ -59,12 +59,12 @@ export default function Home() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10 sm:space-y-14">
+      <main className="flex-1 w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 py-6 space-y-10 sm:space-y-14">
         {/* Top Hero Row with Sidebar */}
-        <section className="flex flex-col lg:flex-row items-stretch gap-6">
+        <section className="flex flex-col lg:flex-row items-stretch gap-6 w-full">
           {/* Left Category Sidebar */}
           <div
-            className={`transition-all duration-300 ${
+            className={`transition-all duration-300 lg:self-stretch ${
               isSidebarOpen ? "block" : "hidden lg:hidden"
             }`}
           >
@@ -76,7 +76,9 @@ export default function Home() {
           </div>
 
           {/* Right Hero Banner */}
-          <Hero />
+          <div className="flex-1 min-w-0 flex flex-col h-full">
+            <Hero />
+          </div>
         </section>
 
         {/* Trust Badges */}

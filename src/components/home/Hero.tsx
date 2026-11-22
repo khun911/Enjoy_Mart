@@ -68,7 +68,7 @@ export default function Hero() {
   };
 
   return (
-    <div className="flex-1 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 text-white rounded-2xl p-6 sm:p-8 lg:p-10 relative overflow-hidden border border-slate-700/80 shadow-md flex flex-col justify-between min-h-[440px]">
+    <div className="flex-1 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 text-white rounded-2xl p-6 sm:p-8 lg:p-10 relative overflow-hidden border border-slate-700/80 shadow-md flex flex-col justify-between h-full min-h-[480px]">
       {/* Background Decorative Grid */}
       <div className="absolute inset-0 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
 

@@ -11,7 +11,7 @@ interface TopBarProps {
 export default function TopBar({ onOpenOrders, onOpenContact }: TopBarProps) {
   return (
     <div className="w-full bg-slate-900 text-gray-300 text-xs py-2 border-b border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+      <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 flex items-center justify-between gap-4">
         {/* Left: Contact Info & Notice */}
         <div className="flex items-center gap-6">
           <div className="hidden md:flex items-center gap-4 text-gray-400">

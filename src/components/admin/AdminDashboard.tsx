@@ -268,7 +268,7 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
   };
 
   return (
-    <div className={`flex min-h-screen bg-[#f3f4f8] text-slate-800 antialiased font-sans ${isModal ? "p-0 rounded-3xl overflow-hidden" : ""}`}>
+    <div className={`flex bg-[#f3f4f8] text-slate-800 antialiased font-sans ${isModal ? "w-full h-full overflow-hidden" : "w-full min-h-screen"}`}>
       {/* 1. LEFT SIDEBAR NAVIGATION (Enjoy-Mart Official Branding matching Template) */}
       <aside className="w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between shrink-0 hidden md:flex">
         <div>
@@ -411,7 +411,7 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
         </header>
 
         {/* Dashboard Body Container */}
-        <div className="p-6 sm:p-8 space-y-6 max-w-7xl w-full mx-auto">
+        <div className="p-6 sm:p-8 space-y-6 w-full max-w-[1920px] mx-auto">
           {/* =========================================================================
              TAB: DASHBOARD (Overview with Visual Charts matching template)
              ========================================================================= */}

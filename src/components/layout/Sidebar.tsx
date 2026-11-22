@@ -69,10 +69,10 @@ export default function Sidebar({
 
   return (
     <div
-      className="relative"
+      className="relative h-full flex flex-col"
       onMouseLeave={() => setHoveredCategory(null)}
     >
-      <aside className="w-64 bg-white border border-slate-200/90 rounded-2xl shadow-sm shrink-0 flex flex-col justify-between overflow-visible">
+      <aside className="w-64 bg-white border border-slate-200/90 rounded-2xl shadow-sm shrink-0 flex flex-col justify-between overflow-visible h-full">
         {/* Formal Department Directory Header */}
         <div className="p-3.5 bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 text-white rounded-t-2xl flex items-center justify-between border-b border-slate-700/50">
           <div className="flex items-center gap-2">
@@ -94,7 +94,7 @@ export default function Sidebar({
         </div>
 
         {/* Categories List */}
-        <ul className="divide-y divide-slate-100 py-1">
+        <ul className="divide-y divide-slate-100 py-1 flex-1 flex flex-col justify-between">
           {sidebarCategories.map((cat, idx) => {
             const Icon = cat.icon;
             const isSelected = activeId === cat.id;

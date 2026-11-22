@@ -44,7 +44,7 @@ export default function Footer() {
 
   return (
     <footer className="w-full bg-gray-900 text-gray-300 mt-20 pt-16 pb-12 border-t border-gray-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-gray-800">
           {/* Brand info */}
           <div className="lg:col-span-2 space-y-4">
