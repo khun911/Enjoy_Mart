@@ -505,10 +505,10 @@ export default function Navbar() {
                             </div>
                             <div>
                               <div className="font-bold text-gray-900 text-xs">
-                                Manager Feedback Watchtower
+                                Invento ERP Admin Dashboard
                               </div>
                               <div className="text-[10px] text-gray-400">
-                                View client names & ordered items
+                                Inventory, cash flow, alerts & warehouses
                               </div>
                             </div>
                           </div>

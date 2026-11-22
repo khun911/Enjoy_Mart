@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   X,
@@ -11,14 +11,21 @@ import {
   Printer,
   Download,
   Truck,
-  Sparkles,
   ArrowRight,
   QrCode,
   Tag,
+  CreditCard,
+  Wallet,
+  Banknote,
+  Smartphone,
+  Clock,
 } from "lucide-react";
 import { CartItem } from "@/types";
 import { CURRENCIES, formatCurrency } from "@/utils/currency";
 import Barcode from "@/components/common/Barcode";
+import QRCode from "@/components/common/QRCode";
+
+export type PaymentMethodType = "qr" | "visa" | "mastercard" | "paypal" | "applepay" | "cod";
 
 interface FormalCheckoutModalProps {
   isOpen: boolean;
@@ -26,6 +33,7 @@ interface FormalCheckoutModalProps {
   cart: CartItem[];
   totalPrice: number;
   initialCurrency?: string;
+  initialPaymentMethod?: PaymentMethodType;
   onOrderSuccess: (orderId: string) => void;
 }
 
@@ -35,10 +43,14 @@ export default function FormalCheckoutModal({
   cart,
   totalPrice,
   initialCurrency = "USD",
+  initialPaymentMethod = "qr",
   onOrderSuccess,
 }: FormalCheckoutModalProps) {
   // Currency exchange state
   const [currency, setCurrency] = useState(initialCurrency);
+
+  // Selected Payment Method
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>(initialPaymentMethod);
 
   // Client & Card form state
   const [cardHolder, setCardHolder] = useState("KHUN 911");
@@ -47,7 +59,6 @@ export default function FormalCheckoutModal({
   const [cvv, setCvv] = useState("892");
   const [clientEmail, setClientEmail] = useState("khun911@enjoy-mart.com");
   const [shippingAddress, setShippingAddress] = useState("No. 128, St. 2004, Phnom Penh, Cambodia");
-  const [paymentMethod, setPaymentMethod] = useState<"visa" | "mastercard" | "paypal" | "applepay">("visa");
 
   // Promo code
   const [promoCode, setPromoCode] = useState("");
@@ -58,6 +69,41 @@ export default function FormalCheckoutModal({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [confirmedOrderId, setConfirmedOrderId] = useState("ORD-2026-91184");
+
+  // Selected Bank for QR
+  const [selectedBank, setSelectedBank] = useState<string>("ABA Mobile");
+
+  // QR Countdown Timer (15 minutes simulation)
+  const [qrTimer, setQrTimer] = useState(899);
+
+  // Sync state with props during render without useEffect setState
+  const [prevMethodProp, setPrevMethodProp] = useState(initialPaymentMethod);
+  const [prevCurrencyProp, setPrevCurrencyProp] = useState(initialCurrency);
+
+  if (initialPaymentMethod !== prevMethodProp) {
+    setPrevMethodProp(initialPaymentMethod);
+    setPaymentMethod(initialPaymentMethod);
+  }
+
+  if (initialCurrency !== prevCurrencyProp) {
+    setPrevCurrencyProp(initialCurrency);
+    setCurrency(initialCurrency);
+  }
+
+  useEffect(() => {
+    if (paymentMethod === "qr" && isOpen && !isCompleted) {
+      const interval = setInterval(() => {
+        setQrTimer((prev) => (prev > 0 ? prev - 1 : 900));
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [paymentMethod, isOpen, isCompleted]);
+
+  const formatTimer = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
 
   // Format Card Number (space every 4 digits)
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,51 +144,51 @@ export default function FormalCheckoutModal({
   const discountAmount = totalPrice * discountPercent;
   const shippingFee = totalPrice > 50 ? 0 : 9.99;
   const taxAmount = (totalPrice - discountAmount) * 0.08;
-  const finalTotalUSD = Math.max(0, totalPrice - discountAmount + shippingFee + taxAmount);
+  const finalTotalUSD = totalPrice - discountAmount + shippingFee + taxAmount;
 
-  const handleProcessPayment = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Process Payment submission
+  const handleProcessPayment = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setIsProcessing(true);
 
-    const generatedId = `EM-${Math.floor(100000 + Math.random() * 900000)}`;
-    setConfirmedOrderId(generatedId);
+    const randomSuffix = Math.floor(10000 + Math.random() * 90000);
+    const newOrderId = `ORD-2026-${randomSuffix}`;
 
     setTimeout(() => {
       setIsProcessing(false);
       setIsCompleted(true);
-      onOrderSuccess(generatedId);
-    }, 1400);
-  };
-
-  const handlePrint = () => {
-    window.print();
+      setConfirmedOrderId(newOrderId);
+      onOrderSuccess(newOrderId);
+    }, 1200);
   };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full overflow-hidden border border-gray-100 flex flex-col max-h-[92vh]">
-        {/* Top Header with OFFICIAL WEBSITE LOGO */}
-        <div className="px-6 py-4 bg-gradient-to-r from-blue-700 via-blue-800 to-indigo-900 text-white flex items-center justify-between shrink-0">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full overflow-hidden border border-slate-200 flex flex-col max-h-[94vh]">
+        {/* Header Bar */}
+        <div className="bg-gradient-to-r from-blue-700 via-blue-800 to-indigo-900 text-white p-5 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            {/* Enjoy-Mart Official Website Logo */}
-            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-blue-600 shadow-md shrink-0">
-              <span className="font-extrabold text-xl tracking-tight">E</span>
+            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center font-extrabold text-xl shadow-inner border border-white/30">
+              E
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-black text-lg tracking-tight text-white leading-none">
-                  ENJOY<span className="text-blue-200">-MART</span>
+                <span className="font-black text-lg tracking-tight leading-none">
+                  ENJOY<span className="text-blue-300">-MART</span>
                 </span>
-                <span className="text-white/60 text-xs font-semibold">| Formal Checkout</span>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 text-[10px] font-semibold flex items-center gap-1">
+                <span className="text-white/80 text-xs font-semibold">| Multi-Option Payment Gateway</span>
+                <span className="bg-emerald-500/30 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-400/30 flex items-center gap-1">
                   <ShieldCheck className="w-3 h-3" /> 256-Bit SSL
                 </span>
               </div>
-              <p className="text-xs text-blue-200 mt-0.5">Official Payment Gateway & Exchange Policy</p>
+              <p className="text-[11px] text-blue-200 mt-0.5">
+                Official Bank Gateway • Dynamic QR • Cards • Digital Wallets • 30-Day Free Exchange
+              </p>
             </div>
           </div>
+
           <button
             type="button"
             onClick={onClose}
@@ -152,26 +198,25 @@ export default function FormalCheckoutModal({
           </button>
         </div>
 
-        {/* Currency & Exchange Banner Bar */}
-        <div className="bg-blue-50/90 px-6 py-2.5 border-b border-blue-100 flex flex-wrap items-center justify-between gap-3 text-xs shrink-0">
-          <div className="flex items-center gap-2 text-gray-700">
-            <RefreshCw className="w-3.5 h-3.5 text-blue-600 animate-spin-reverse" />
-            <span className="font-semibold text-blue-900">Exchange Money:</span>
-            <span className="text-gray-600">
-              1 USD = {CURRENCIES[currency]?.rate?.toLocaleString() || 1} {currency} ({CURRENCIES[currency]?.name || "US Dollar"})
+        {/* Currency & Exchange Rate Ribbon */}
+        <div className="bg-slate-50 px-6 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between text-xs text-slate-700 gap-2 shrink-0">
+          <div className="flex items-center gap-2 font-medium">
+            <RefreshCw className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+            <span className="text-slate-600 font-semibold">
+              Live Rate: 1 USD = {CURRENCIES[currency]?.rate?.toLocaleString() || 1} {currency} ({CURRENCIES[currency]?.name || "US Dollar"})
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] text-gray-500 font-medium">Select Currency:</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-slate-500 font-bold">Billing Currency:</span>
             <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
               aria-label="Select Payment Currency"
-              className="bg-white border border-blue-200 text-blue-900 font-bold text-xs py-1 px-2.5 rounded-lg shadow-2xs focus:outline-none focus:border-blue-600 cursor-pointer"
+              className="bg-white border border-slate-300 text-slate-900 font-bold text-xs py-1 px-3 rounded-lg shadow-2xs focus:outline-none focus:border-blue-600 cursor-pointer"
             >
               {Object.keys(CURRENCIES).map((cur) => (
-                <option key={cur} value={cur}>
+                <option key={cur} value={cur} className="text-slate-900 bg-white">
                   {CURRENCIES[cur].flag} {cur} - {CURRENCIES[cur].name} ({CURRENCIES[cur].symbol})
                 </option>
               ))}
@@ -180,302 +225,518 @@ export default function FormalCheckoutModal({
         </div>
 
         {/* Modal Body */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 bg-white">
           {!isCompleted ? (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              {/* Left Column: Photorealistic Card Preview & Inputs */}
-              <div className="lg:col-span-7 space-y-6">
-                {/* Photorealistic Metallic Visa Card */}
-                <div className="relative w-full max-w-[380px] mx-auto aspect-[1.586] rounded-2xl p-6 text-white shadow-2xl overflow-hidden bg-gradient-to-tr from-slate-950 via-blue-950 to-indigo-900 border border-white/20 select-none group">
-                  {/* Subtle Background Pattern */}
-                  <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]" />
-                  <div className="absolute -top-12 -right-12 w-48 h-48 bg-blue-500/20 rounded-full blur-2xl pointer-events-none" />
-
-                  {/* Card Top: Chip & Contactless */}
-                  <div className="relative z-10 flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      {/* Realistic Gold EMV Chip */}
-                      <div className="w-11 h-8 rounded-md bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 border border-amber-500 shadow-inner p-1 flex flex-col justify-between">
-                        <div className="w-full h-[1px] bg-amber-800/40" />
-                        <div className="flex justify-between items-center h-full">
-                          <div className="w-[1px] h-full bg-amber-800/40" />
-                          <div className="w-4 h-2.5 rounded-sm border border-amber-800/50 bg-amber-300/30" />
-                          <div className="w-[1px] h-full bg-amber-800/40" />
-                        </div>
-                        <div className="w-full h-[1px] bg-amber-800/40" />
-                      </div>
-                      {/* NFC Contactless Wave */}
-                      <svg className="w-6 h-6 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071a10 10 0 0114.142 0M1.343 9.343a14.5 14.5 0 0121.314 0" />
-                      </svg>
-                    </div>
-
-                    {/* Visa / Brand Logo */}
-                    <div className="text-right">
-                      {paymentMethod === "visa" ? (
-                        <div className="font-extrabold italic text-2xl tracking-tighter text-white drop-shadow-md">
-                          VISA
-                        </div>
-                      ) : paymentMethod === "mastercard" ? (
-                        <div className="flex items-center">
-                          <div className="w-6 h-6 rounded-full bg-red-500 opacity-90 shadow-sm" />
-                          <div className="w-6 h-6 rounded-full bg-amber-400 opacity-90 -ml-2.5 shadow-sm" />
-                        </div>
-                      ) : (
-                        <span className="font-bold text-sm tracking-wider uppercase text-blue-200">
-                          {paymentMethod}
-                        </span>
-                      )}
-                      <span className="block text-[8px] font-mono tracking-widest text-blue-200/80 uppercase">
-                        Platinum Debit
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Enjoy-Mart Official Brand on Card */}
-                  <div className="relative z-10 flex items-center gap-1.5 opacity-90 my-1">
-                    <div className="w-5 h-5 rounded-md bg-white/20 backdrop-blur-xs flex items-center justify-center text-[10px] font-black text-white border border-white/30">
-                      E
-                    </div>
-                    <span className="text-[10px] font-black tracking-widest uppercase text-white/95">
-                      ENJOY-MART <span className="text-[8px] font-normal text-blue-200">PLATINUM VIP</span>
+              {/* Left Column: MULTIPLE CHOICE PAYMENT SELECTOR & ACTIVE INTERFACE */}
+              <div className="lg:col-span-7 space-y-5">
+                {/* 1. MULTIPLE CHOICE PAYMENT METHOD SELECTOR */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-black text-slate-900 uppercase tracking-wider">
+                      Choose How to Pay:
+                    </label>
+                    <span className="text-[11px] text-blue-700 font-bold flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> All methods 100% verified
                     </span>
                   </div>
 
-                  {/* Card Number */}
-                  <div className="relative z-10 my-3 font-mono text-xl sm:text-2xl tracking-[0.18em] font-medium text-white drop-shadow-md">
-                    {cardNumber || "4532 8920 1840 9182"}
-                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {/* Choice 1: QR Code */}
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("qr")}
+                      className={`p-3 rounded-2xl border-2 flex flex-col items-center justify-center gap-1.5 transition cursor-pointer relative ${
+                        paymentMethod === "qr"
+                          ? "border-blue-600 bg-blue-50/80 text-blue-900 shadow-sm"
+                          : "border-slate-200 hover:border-slate-300 bg-slate-50/70 text-slate-700"
+                      }`}
+                    >
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${paymentMethod === "qr" ? "bg-blue-600 text-white" : "bg-white text-blue-600 shadow-2xs"}`}>
+                        <QrCode className="w-4 h-4" />
+                      </div>
+                      <span className="font-extrabold text-xs">QR Code</span>
+                      <span className="text-[10px] text-slate-500 font-medium">Scan & Pay</span>
+                      {paymentMethod === "qr" && (
+                        <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-blue-600" />
+                      )}
+                    </button>
 
-                  {/* Card Bottom: Holder Name & Valid Thru */}
-                  <div className="relative z-10 flex items-end justify-between pt-2">
-                    <div>
-                      <div className="text-[9px] uppercase tracking-widest text-blue-200/80 font-mono">
-                        Cardholder Name
+                    {/* Choice 2: Visa / Mastercard */}
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("visa")}
+                      className={`p-3 rounded-2xl border-2 flex flex-col items-center justify-center gap-1.5 transition cursor-pointer relative ${
+                        paymentMethod === "visa" || paymentMethod === "mastercard"
+                          ? "border-blue-600 bg-blue-50/80 text-blue-900 shadow-sm"
+                          : "border-slate-200 hover:border-slate-300 bg-slate-50/70 text-slate-700"
+                      }`}
+                    >
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${paymentMethod === "visa" || paymentMethod === "mastercard" ? "bg-blue-600 text-white" : "bg-white text-blue-600 shadow-2xs"}`}>
+                        <CreditCard className="w-4 h-4" />
                       </div>
-                      <div className="font-semibold text-xs sm:text-sm tracking-wider uppercase text-white truncate max-w-[200px]">
-                        {cardHolder || "CUSTOMER NAME"}
-                      </div>
-                    </div>
+                      <span className="font-extrabold text-xs">Visa / Card</span>
+                      <span className="text-[10px] text-slate-500 font-medium">Debit / Credit</span>
+                      {(paymentMethod === "visa" || paymentMethod === "mastercard") && (
+                        <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-blue-600" />
+                      )}
+                    </button>
 
-                    <div className="text-right">
-                      <div className="text-[9px] uppercase tracking-widest text-blue-200/80 font-mono">
-                        Expires
+                    {/* Choice 3: PayPal / Apple Pay */}
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("paypal")}
+                      className={`p-3 rounded-2xl border-2 flex flex-col items-center justify-center gap-1.5 transition cursor-pointer relative ${
+                        paymentMethod === "paypal" || paymentMethod === "applepay"
+                          ? "border-blue-600 bg-blue-50/80 text-blue-900 shadow-sm"
+                          : "border-slate-200 hover:border-slate-300 bg-slate-50/70 text-slate-700"
+                      }`}
+                    >
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${paymentMethod === "paypal" || paymentMethod === "applepay" ? "bg-blue-600 text-white" : "bg-white text-blue-600 shadow-2xs"}`}>
+                        <Wallet className="w-4 h-4" />
                       </div>
-                      <div className="font-mono text-xs sm:text-sm font-semibold tracking-wider text-white">
-                        {expiryDate || "12/29"}
+                      <span className="font-extrabold text-xs">PayPal / Pay</span>
+                      <span className="text-[10px] text-slate-500 font-medium">1-Click Express</span>
+                      {(paymentMethod === "paypal" || paymentMethod === "applepay") && (
+                        <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-blue-600" />
+                      )}
+                    </button>
+
+                    {/* Choice 4: Cash on Delivery (COD) */}
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("cod")}
+                      className={`p-3 rounded-2xl border-2 flex flex-col items-center justify-center gap-1.5 transition cursor-pointer relative ${
+                        paymentMethod === "cod"
+                          ? "border-blue-600 bg-blue-50/80 text-blue-900 shadow-sm"
+                          : "border-slate-200 hover:border-slate-300 bg-slate-50/70 text-slate-700"
+                      }`}
+                    >
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${paymentMethod === "cod" ? "bg-blue-600 text-white" : "bg-white text-emerald-600 shadow-2xs"}`}>
+                        <Banknote className="w-4 h-4" />
                       </div>
-                    </div>
+                      <span className="font-extrabold text-xs">Cash on Delivery</span>
+                      <span className="text-[10px] text-slate-500 font-medium">Pay on Arrival</span>
+                      {paymentMethod === "cod" && (
+                        <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-blue-600" />
+                      )}
+                    </button>
                   </div>
                 </div>
 
-                {/* Card Payment Form */}
-                <form id="checkout-form" onSubmit={handleProcessPayment} className="space-y-4">
-                  {/* Payment Method Badges */}
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                      Formal Payment Method
-                    </label>
-                    <div className="grid grid-cols-4 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod("visa")}
-                        className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition cursor-pointer ${
-                          paymentMethod === "visa"
-                            ? "border-blue-600 bg-blue-50/80 text-blue-700 font-bold shadow-xs"
-                            : "border-gray-200 hover:border-gray-300 text-gray-600"
-                        }`}
-                      >
-                        <span className="font-extrabold italic text-base text-blue-700">VISA</span>
-                        <span className="text-[10px]">Visa Card</span>
-                      </button>
+                {/* 2. DYNAMIC PAYMENT INTERFACE BASED ON CHOICE */}
 
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod("mastercard")}
-                        className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition cursor-pointer ${
-                          paymentMethod === "mastercard"
-                            ? "border-blue-600 bg-blue-50/80 text-blue-700 font-bold shadow-xs"
-                            : "border-gray-200 hover:border-gray-300 text-gray-600"
-                        }`}
-                      >
-                        <div className="flex items-center">
-                          <div className="w-4 h-4 rounded-full bg-red-500" />
-                          <div className="w-4 h-4 rounded-full bg-amber-400 -ml-2" />
+                {/* ===================== OPTION 1: QR CODE SCAN & PAY ===================== */}
+                {paymentMethod === "qr" && (
+                  <div className="p-5 rounded-2xl bg-gradient-to-b from-slate-50 to-blue-50/40 border border-slate-200 space-y-4">
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                      <div className="flex items-center gap-2">
+                        <Smartphone className="w-5 h-5 text-blue-600" />
+                        <div>
+                          <h4 className="text-xs font-black text-slate-900 uppercase tracking-wide">
+                            Scan with Mobile Banking (KHQR / Global Scan)
+                          </h4>
+                          <span className="text-[10px] text-slate-500">
+                            Merchant: ENJOY-MART OFFICIAL STORE • No Transaction Fee
+                          </span>
                         </div>
-                        <span className="text-[10px]">Mastercard</span>
-                      </button>
+                      </div>
 
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod("paypal")}
-                        className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition cursor-pointer ${
-                          paymentMethod === "paypal"
-                            ? "border-blue-600 bg-blue-50/80 text-blue-700 font-bold shadow-xs"
-                            : "border-gray-200 hover:border-gray-300 text-gray-600"
-                        }`}
-                      >
-                        <span className="font-bold text-sm text-blue-900">PayPal</span>
-                        <span className="text-[10px]">Express</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod("applepay")}
-                        className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition cursor-pointer ${
-                          paymentMethod === "applepay"
-                            ? "border-blue-600 bg-blue-50/80 text-blue-700 font-bold shadow-xs"
-                            : "border-gray-200 hover:border-gray-300 text-gray-600"
-                        }`}
-                      >
-                        <span className="font-bold text-sm text-gray-900">Pay</span>
-                        <span className="text-[10px]">Apple Pay</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Card Details Fields */}
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-800 mb-1">
-                        Name on Visa / Card
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={cardHolder}
-                        onChange={(e) => setCardHolder(e.target.value)}
-                        placeholder="e.g. KHUN 911"
-                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-2xs"
-                      />
+                      <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-amber-700 bg-amber-100/70 px-2.5 py-1 rounded-full border border-amber-300">
+                        <Clock className="w-3.5 h-3.5 text-amber-600" />
+                        <span>{formatTimer(qrTimer)}</span>
+                      </div>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center justify-between">
-                        <span>Card Number</span>
-                        <span className="text-[11px] text-slate-500 font-semibold flex items-center gap-1">
-                          <Lock className="w-3 h-3 text-emerald-600" /> Bank Level Security
-                        </span>
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          required
-                          value={cardNumber}
-                          onChange={handleCardNumberChange}
-                          placeholder="4532 8920 1840 9182"
-                          maxLength={19}
-                          className="w-full pl-3.5 pr-14 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono font-bold text-slate-900 placeholder:text-slate-400 tracking-wider focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-2xs"
+                    {/* QR Code Presentation */}
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-6 py-2">
+                      <div className="flex flex-col items-center">
+                        <QRCode
+                          value={`khqr://enjoy-mart/pay?amt=${finalTotalUSD.toFixed(2)}&cur=${currency}&ref=${confirmedOrderId}`}
+                          size={190}
                         />
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 font-black italic text-blue-700 text-xs">
-                          {paymentMethod === "visa" ? "VISA" : "MC"}
+                        <span className="text-[10px] font-mono font-bold text-slate-500 mt-2">
+                          INVOICE: #{confirmedOrderId}
+                        </span>
+                      </div>
+
+                      <div className="space-y-3 max-w-xs text-xs">
+                        <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs space-y-1">
+                          <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wider">
+                            Total Due in {currency}:
+                          </span>
+                          <div className="text-xl font-black text-blue-600">
+                            {formatCurrency(finalTotalUSD, currency)}
+                          </div>
+                          {currency !== "USD" && (
+                            <span className="text-[10px] text-slate-400 block">
+                              ≈ ${finalTotalUSD.toFixed(2)} USD
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Supported Banking Apps */}
+                        <div>
+                          <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
+                            Supported Mobile Apps:
+                          </span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {["ABA Mobile", "Wing Bank", "ACLEDA", "Bakong", "PromptPay"].map((bank) => (
+                              <button
+                                key={bank}
+                                type="button"
+                                onClick={() => setSelectedBank(bank)}
+                                className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${
+                                  selectedBank === bank
+                                    ? "bg-blue-600 text-white border-blue-600 shadow-2xs"
+                                    : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
+                                }`}
+                              >
+                                {bank}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <p className="text-[11px] text-slate-600 leading-snug">
+                          Open <strong>{selectedBank}</strong> or any banking app, tap <strong>Scan QR</strong>, and approve payment.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Instant Scan Simulation Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleProcessPayment()}
+                      disabled={isProcessing}
+                      className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.99]"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Verifying Bank Network Payment...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>Simulate App Scan & Pay {formatCurrency(finalTotalUSD, currency)}</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {/* ===================== OPTION 2: VISA / MASTERCARD ===================== */}
+                {(paymentMethod === "visa" || paymentMethod === "mastercard") && (
+                  <div className="space-y-4">
+                    {/* Photorealistic Metallic Card Preview */}
+                    <div className="relative w-full max-w-[360px] mx-auto aspect-[1.586] rounded-2xl p-5 text-white shadow-xl overflow-hidden bg-gradient-to-tr from-slate-950 via-blue-950 to-indigo-900 border border-white/20 select-none group">
+                      <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]" />
+                      <div className="absolute -top-12 -right-12 w-48 h-48 bg-blue-500/20 rounded-full blur-2xl pointer-events-none" />
+
+                      {/* Card Top: Chip & Network */}
+                      <div className="relative z-10 flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-7 rounded-md bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 border border-amber-500 p-1 flex flex-col justify-between shadow-inner">
+                            <div className="w-full h-[1px] bg-amber-800/40" />
+                            <div className="w-full h-[1px] bg-amber-800/40" />
+                          </div>
+                          <span className="text-[9px] font-mono tracking-widest text-blue-200 uppercase">
+                            Formal Debit
+                          </span>
+                        </div>
+
+                        <div className="text-right">
+                          {paymentMethod === "mastercard" ? (
+                            <div className="flex items-center">
+                              <div className="w-5 h-5 rounded-full bg-red-500" />
+                              <div className="w-5 h-5 rounded-full bg-amber-400 -ml-2" />
+                            </div>
+                          ) : (
+                            <span className="font-extrabold italic text-lg tracking-tight text-white">VISA</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Enjoy-Mart Official Brand */}
+                      <div className="relative z-10 flex items-center gap-1.5 opacity-90 my-1">
+                        <span className="text-[10px] font-black tracking-widest uppercase text-white/95">
+                          ENJOY-MART <span className="text-[8px] font-normal text-blue-200">PLATINUM VIP</span>
+                        </span>
+                      </div>
+
+                      {/* Card Number */}
+                      <div className="relative z-10 my-2 font-mono text-lg sm:text-xl tracking-[0.16em] font-medium text-white drop-shadow-md">
+                        {cardNumber || "4532 8920 1840 9182"}
+                      </div>
+
+                      {/* Card Bottom */}
+                      <div className="relative z-10 flex items-end justify-between pt-1">
+                        <div>
+                          <div className="text-[8px] uppercase tracking-widest text-blue-200/80 font-mono">
+                            Cardholder
+                          </div>
+                          <div className="font-mono text-xs font-bold tracking-wider uppercase text-white truncate max-w-[170px]">
+                            {cardHolder || "KHUN 911"}
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <div className="text-[8px] uppercase tracking-widest text-blue-200/80 font-mono">
+                            Expires
+                          </div>
+                          <div className="font-mono text-xs font-semibold tracking-wider text-white">
+                            {expiryDate || "12/29"}
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    {/* Card Form Fields */}
+                    <form id="card-checkout-form" onSubmit={handleProcessPayment} className="space-y-3">
                       <div>
                         <label className="block text-xs font-bold text-slate-800 mb-1">
-                          Expiration (MM/YY)
+                          Name on Card
                         </label>
                         <input
                           type="text"
                           required
-                          value={expiryDate}
-                          onChange={handleExpiryChange}
-                          placeholder="MM/YY"
-                          maxLength={5}
-                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-2xs"
+                          value={cardHolder}
+                          onChange={(e) => setCardHolder(e.target.value)}
+                          placeholder="e.g. KHUN 911"
+                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-2xs"
                         />
                       </div>
 
                       <div>
                         <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center justify-between">
-                          <span>CVV / CVC</span>
-                          <span className="text-[10px] text-slate-500 font-semibold">3 Digits</span>
+                          <span>Card Number</span>
+                          <span className="text-[11px] text-slate-500 font-semibold flex items-center gap-1">
+                            <Lock className="w-3 h-3 text-emerald-600" /> Bank Level Security
+                          </span>
                         </label>
-                        <input
-                          type="password"
-                          required
-                          value={cvv}
-                          onChange={(e) => setCvv(e.target.value.slice(0, 4))}
-                          placeholder="•••"
-                          maxLength={4}
-                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-2xs"
-                        />
+                        <div className="relative">
+                          <input
+                            type="text"
+                            required
+                            value={cardNumber}
+                            onChange={handleCardNumberChange}
+                            placeholder="4532 8920 1840 9182"
+                            maxLength={19}
+                            className="w-full pl-3.5 pr-14 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono font-bold text-slate-900 placeholder:text-slate-400 tracking-wider focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-2xs"
+                          />
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 font-black italic text-blue-700 text-xs">
+                            {paymentMethod === "mastercard" ? "MC" : "VISA"}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-800 mb-1">
+                            Expiration (MM/YY)
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={expiryDate}
+                            onChange={handleExpiryChange}
+                            placeholder="MM/YY"
+                            maxLength={5}
+                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-2xs"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center justify-between">
+                            <span>CVV / CVC</span>
+                            <span className="text-[10px] text-slate-500 font-semibold">3 Digits</span>
+                          </label>
+                          <input
+                            type="password"
+                            required
+                            value={cvv}
+                            onChange={(e) => setCvv(e.target.value.slice(0, 4))}
+                            placeholder="•••"
+                            maxLength={4}
+                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-2xs"
+                          />
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
+                {/* ===================== OPTION 3: PAYPAL & APPLE PAY ===================== */}
+                {(paymentMethod === "paypal" || paymentMethod === "applepay") && (
+                  <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-4">
+                    <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-2xl flex items-center justify-center mx-auto shadow-xs">
+                      <Wallet className="w-6 h-6" />
+                    </div>
+
+                    <div>
+                      <h4 className="text-sm font-black text-slate-900">
+                        Fast 1-Click Digital Wallet Checkout
+                      </h4>
+                      <p className="text-xs text-slate-600 mt-1 max-w-sm mx-auto leading-relaxed">
+                        Authorize instantly with your saved PayPal account or Apple Pay biometric device. No card number typing needed.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto">
+                      <button
+                        type="button"
+                        onClick={() => handleProcessPayment()}
+                        disabled={isProcessing}
+                        className="py-3 px-4 bg-[#0070ba] hover:bg-[#005ea6] text-white font-extrabold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      >
+                        <span>🅿️ PayPal Express</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleProcessPayment()}
+                        disabled={isProcessing}
+                        className="py-3 px-4 bg-slate-900 hover:bg-black text-white font-extrabold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      >
+                        <span> Apple Pay</span>
+                      </button>
+                    </div>
+
+                    <div className="text-[11px] text-slate-500 flex items-center justify-center gap-2 pt-2">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Enjoy-Mart Buyer Protection Guarantee</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* ===================== OPTION 4: CASH ON DELIVERY ===================== */}
+                {paymentMethod === "cod" && (
+                  <div className="p-5 rounded-2xl bg-amber-50/70 border border-amber-200/90 space-y-4">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+                        <Banknote className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-black text-amber-950 uppercase tracking-wide">
+                          Cash on Delivery (COD) & In-Store Pickup
+                        </h4>
+                        <span className="text-[11px] text-amber-800">
+                          Inspect products first, then pay in cash directly to our courier.
+                        </span>
                       </div>
                     </div>
 
-                    {/* Client Email & Shipping Address */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-800 mb-1">
-                          Notification Email
-                        </label>
-                        <input
-                          type="email"
-                          required
-                          value={clientEmail}
-                          onChange={(e) => setClientEmail(e.target.value)}
-                          placeholder="client@email.com"
-                          className="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-2xs"
-                        />
+                    <div className="p-3 bg-white rounded-xl border border-amber-200 text-xs space-y-2">
+                      <div className="flex items-center justify-between font-bold text-slate-900">
+                        <span>Courier Dispatch To:</span>
+                        <span className="text-blue-600 text-[11px]">Cambodia Standard Dispatch</span>
                       </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-800 mb-1">
-                          Delivery Address
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={shippingAddress}
-                          onChange={(e) => setShippingAddress(e.target.value)}
-                          placeholder="Address, City, Country"
-                          className="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition shadow-2xs"
-                        />
+                      <p className="text-slate-700 font-medium">
+                        {shippingAddress}
+                      </p>
+                      <div className="text-[10px] text-slate-500 border-t border-slate-100 pt-1.5">
+                        💵 Please prepare exact cash of <strong>{formatCurrency(finalTotalUSD, currency)}</strong> upon arrival.
                       </div>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleProcessPayment()}
+                      disabled={isProcessing}
+                      className="w-full py-3 bg-slate-900 hover:bg-black text-white rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Registering Cash Order...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                          <span>Confirm Order with Cash on Delivery ({formatCurrency(finalTotalUSD, currency)})</span>
+                        </>
+                      )}
+                    </button>
                   </div>
-                </form>
+                )}
+
+                {/* Shipping & Notification Fields (Shared) */}
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                  <div className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <Truck className="w-4 h-4 text-blue-600" />
+                    <span>Recipient & Delivery Coordinates</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-800 mb-1">
+                        Notification Email
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={clientEmail}
+                        onChange={(e) => setClientEmail(e.target.value)}
+                        placeholder="client@email.com"
+                        className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 transition shadow-2xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-800 mb-1">
+                        Delivery Address
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={shippingAddress}
+                        onChange={(e) => setShippingAddress(e.target.value)}
+                        placeholder="Address, City, Country"
+                        className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 transition shadow-2xs"
+                      />
+                    </div>
+                  </div>
+                </div>
 
                 {/* 30-Day Easy Exchange Policy Guarantee Box */}
-                <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 flex items-start gap-3">
-                  <div className="p-2 bg-amber-100 rounded-xl text-amber-800 shrink-0">
-                    <RefreshCw className="w-5 h-5" />
+                <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 flex items-start gap-3">
+                  <div className="p-1.5 bg-amber-100 rounded-lg text-amber-800 shrink-0">
+                    <RefreshCw className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-amber-900 uppercase tracking-wide">
-                      30-Day Official Exchange & Return Guarantee
+                    <h4 className="text-xs font-bold text-amber-950 uppercase tracking-wide">
+                      30-Day Official Exchange Guarantee
                     </h4>
-                    <p className="text-xs text-amber-800/90 mt-0.5 leading-relaxed">
-                      Every order comes with an authentic Enjoy-Mart Barcode Exchange Pass. Not satisfied? Enjoy fast 100% item replacement or full refund within 30 days.
+                    <p className="text-[11px] text-amber-900 mt-0.5 leading-relaxed">
+                      Every order includes an authentic Enjoy-Mart Barcode Exchange Pass. Return or swap any product hassle-free within 30 days.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Right Column: Order Summary, Barcode, Exchange Calculation */}
-              <div className="lg:col-span-5 bg-gray-50/70 rounded-2xl p-5 border border-gray-200/80 flex flex-col justify-between space-y-5">
+              {/* Right Column: Order Summary, Barcode, Total Due & Submit */}
+              <div className="lg:col-span-5 bg-slate-50/80 rounded-2xl p-5 border border-slate-200 flex flex-col justify-between space-y-5">
                 <div>
-                  <div className="flex items-center justify-between pb-3 border-b border-gray-200">
-                    <h3 className="text-sm font-bold text-gray-900">Order Summary ({cart.length} items)</h3>
-                    <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                    <h3 className="text-sm font-black text-slate-900">Order Summary ({cart.length} items)</h3>
+                    <span className="text-xs font-bold text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded-full">
                       {currency}
                     </span>
                   </div>
 
                   {/* Cart Items List */}
-                  <div className="max-h-48 overflow-y-auto divide-y divide-gray-100 my-3 pr-1">
+                  <div className="max-h-48 overflow-y-auto divide-y divide-slate-100 my-3 pr-1">
                     {cart.map((item) => (
                       <div key={item.id} className="py-2.5 flex items-center gap-3">
-                        <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-white border border-gray-200 shrink-0">
+                        <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-white border border-slate-200 shrink-0">
                           <Image src={item.image} alt={item.name} fill className="object-cover" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-xs font-bold text-gray-900 truncate">{item.name}</h4>
-                          <span className="text-[11px] text-gray-500">Qty: {item.quantity}</span>
+                          <h4 className="text-xs font-bold text-slate-900 truncate">{item.name}</h4>
+                          <span className="text-[11px] text-slate-500 font-semibold">Qty: {item.quantity}</span>
                         </div>
-                        <div className="text-xs font-bold text-gray-900">
+                        <div className="text-xs font-black text-slate-900">
                           {formatCurrency(item.price * item.quantity, currency)}
                         </div>
                       </div>
@@ -483,8 +744,8 @@ export default function FormalCheckoutModal({
                   </div>
 
                   {/* Promo Code Input */}
-                  <div className="mt-4 pt-3 border-t border-gray-200">
-                    <label className="block text-[11px] font-semibold text-gray-600 mb-1 flex items-center gap-1">
+                  <div className="mt-4 pt-3 border-t border-slate-200">
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1 flex items-center gap-1">
                       <Tag className="w-3 h-3 text-blue-600" /> Have a Promo Code?
                     </label>
                     <div className="flex gap-2">
@@ -504,23 +765,23 @@ export default function FormalCheckoutModal({
                       </button>
                     </div>
                     {promoMessage && (
-                      <p className={`text-[11px] mt-1 font-medium ${discountPercent > 0 ? "text-emerald-600" : "text-red-500"}`}>
+                      <p className={`text-[11px] mt-1 font-bold ${discountPercent > 0 ? "text-emerald-600" : "text-rose-600"}`}>
                         {promoMessage}
                       </p>
                     )}
                   </div>
 
                   {/* Cost Calculation */}
-                  <div className="mt-4 space-y-2 text-xs text-gray-600 pt-3 border-t border-gray-200">
+                  <div className="mt-4 space-y-2 text-xs text-slate-600 pt-3 border-t border-slate-200 font-medium">
                     <div className="flex justify-between">
                       <span>Subtotal</span>
-                      <span className="font-semibold text-gray-900">
+                      <span className="font-bold text-slate-900">
                         {formatCurrency(totalPrice, currency)}
                       </span>
                     </div>
 
                     {discountPercent > 0 && (
-                      <div className="flex justify-between text-emerald-600 font-semibold">
+                      <div className="flex justify-between text-emerald-700 font-bold">
                         <span>VIP Discount ({(discountPercent * 100).toFixed(0)}%)</span>
                         <span>-{formatCurrency(discountAmount, currency)}</span>
                       </div>
@@ -528,32 +789,33 @@ export default function FormalCheckoutModal({
 
                     <div className="flex justify-between">
                       <span className="flex items-center gap-1">
-                        <Truck className="w-3.5 h-3.5 text-gray-400" /> Shipping
-                      </span>
-                      <span className="font-semibold text-gray-900">
-                        {shippingFee === 0 ? (
-                          <span className="text-emerald-600 font-bold">FREE</span>
-                        ) : (
-                          formatCurrency(shippingFee, currency)
+                        Shipping
+                        {shippingFee === 0 && (
+                          <span className="text-[10px] text-emerald-700 bg-emerald-100 font-bold px-1.5 rounded">
+                            FREE
+                          </span>
                         )}
+                      </span>
+                      <span className="font-bold text-slate-900">
+                        {shippingFee === 0 ? "FREE" : formatCurrency(shippingFee, currency)}
                       </span>
                     </div>
 
                     <div className="flex justify-between">
                       <span>Estimated Tax (8%)</span>
-                      <span className="font-semibold text-gray-900">
+                      <span className="font-bold text-slate-900">
                         {formatCurrency(taxAmount, currency)}
                       </span>
                     </div>
 
-                    <div className="pt-2 border-t border-gray-300 flex justify-between items-baseline text-sm font-bold text-gray-900">
+                    <div className="pt-2 border-t border-slate-200 flex justify-between items-baseline text-sm font-black text-slate-900">
                       <span>Total Due</span>
                       <div className="text-right">
-                        <div className="text-lg font-extrabold text-blue-600">
+                        <div className="text-lg font-black text-blue-700">
                           {formatCurrency(finalTotalUSD, currency)}
                         </div>
                         {currency !== "USD" && (
-                          <div className="text-[10px] text-gray-400 font-normal">
+                          <div className="text-[10px] text-slate-400 font-normal">
                             ≈ ${finalTotalUSD.toFixed(2)} USD
                           </div>
                         )}
@@ -561,40 +823,42 @@ export default function FormalCheckoutModal({
                     </div>
                   </div>
 
-                  {/* Authentic Barcode Preview for Checkout Docket */}
-                  <div className="mt-5 p-3 bg-white rounded-xl border border-gray-200/90 text-center shadow-2xs">
-                    <span className="text-[9px] uppercase tracking-wider font-bold text-gray-400 block mb-1">
+                  {/* Scannable Barcode Preview */}
+                  <div className="mt-4 p-3 bg-white rounded-xl border border-slate-200 text-center shadow-2xs">
+                    <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400 block mb-1">
                       Scannable Order Barcode
                     </span>
-                    <Barcode value="EM-2026-911-CHK" height={36} />
+                    <Barcode value="EM-2026-911-CHK" height={32} />
                   </div>
                 </div>
 
-                {/* Submit Action Button */}
-                <div>
-                  <button
-                    type="submit"
-                    form="checkout-form"
-                    disabled={isProcessing}
-                    className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                  >
-                    {isProcessing ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        <span>Authorizing Visa Payment...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="w-4 h-4" />
-                        <span>Authorize & Pay {formatCurrency(finalTotalUSD, currency)}</span>
-                        <ArrowRight className="w-4 h-4 ml-1" />
-                      </>
-                    )}
-                  </button>
-                  <p className="text-[10px] text-center text-gray-400 mt-2 flex items-center justify-center gap-1">
-                    <ShieldCheck className="w-3 h-3 text-emerald-500" /> Verified by Visa & Mastercard Identity Check
-                  </p>
-                </div>
+                {/* Submit Action Button for Card Method */}
+                {(paymentMethod === "visa" || paymentMethod === "mastercard") && (
+                  <div>
+                    <button
+                      type="submit"
+                      form="card-checkout-form"
+                      disabled={isProcessing}
+                      className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Authorizing Card Payment...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="w-4 h-4" />
+                          <span>Authorize & Pay {formatCurrency(finalTotalUSD, currency)}</span>
+                          <ArrowRight className="w-4 h-4 ml-1" />
+                        </>
+                      )}
+                    </button>
+                    <p className="text-[10px] text-center text-slate-500 mt-2 flex items-center justify-center gap-1 font-semibold">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> 3D Secure Identity Check Verified
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
@@ -607,129 +871,127 @@ export default function FormalCheckoutModal({
                 <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-md">
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
-                <h3 className="text-2xl font-black text-gray-900 tracking-tight">
+                <h3 className="text-2xl font-black text-slate-900 tracking-tight">
                   Payment Authorized & Order Confirmed!
                 </h3>
-                <p className="text-sm text-gray-600 max-w-md mx-auto">
-                  Thank you for shopping with <span className="font-bold text-blue-600">Enjoy-Mart</span>, {cardHolder}! Your official invoice and exchange barcode have been generated.
+                <p className="text-xs text-slate-600 max-w-md mx-auto">
+                  Thank you for shopping with <strong className="text-blue-600">Enjoy-Mart</strong>! Your official invoice, barcode receipt, and exchange ticket have been generated.
                 </p>
               </div>
 
               {/* Formal Printed Receipt Paper Card */}
-              <div id="printable-receipt" className="bg-gray-50/90 rounded-2xl p-6 border-2 border-dashed border-gray-300 relative shadow-sm">
-                <div className="flex items-center justify-between pb-4 border-b border-gray-200">
+              <div id="printable-receipt" className="bg-slate-50 rounded-2xl p-6 border-2 border-dashed border-slate-300 relative shadow-sm">
+                <div className="flex items-center justify-between pb-4 border-b border-slate-200">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-extrabold text-lg shadow-sm">
                       E
                     </div>
                     <div>
                       <span className="font-black text-sm tracking-tight text-blue-600 leading-none block">
-                        ENJOY<span className="text-gray-900">-MART</span>
+                        ENJOY<span className="text-slate-900">-MART</span>
                       </span>
-                      <h4 className="text-base font-extrabold text-gray-900 mt-0.5">
+                      <h4 className="text-base font-extrabold text-slate-900 mt-0.5">
                         Receipt #{confirmedOrderId}
                       </h4>
                     </div>
                   </div>
-                  <div className="text-right text-xs text-gray-500">
-                    <div>Date: Nov 19, 2026</div>
-                    <div className="text-emerald-600 font-bold">PAID IN FULL</div>
+                  <div className="text-right text-xs text-slate-600 font-semibold">
+                    <div>Date: Nov 22, 2026</div>
+                    <div className="text-emerald-600 font-bold uppercase">
+                      {paymentMethod === "cod" ? "COD REGISTERED" : "PAID IN FULL"}
+                    </div>
                   </div>
                 </div>
 
                 {/* Scannable Barcode & QR Code Section */}
-                <div className="py-5 border-b border-gray-200 flex flex-col sm:flex-row items-center justify-around gap-4 bg-white rounded-xl p-4 my-4 shadow-2xs">
+                <div className="py-5 border-b border-slate-200 flex flex-col sm:flex-row items-center justify-around gap-4 bg-white rounded-xl p-4 my-4 shadow-2xs">
                   <div className="text-center">
-                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
                       Exchange & Warranty Barcode
                     </span>
-                    <Barcode value={confirmedOrderId} height={48} />
-                    <span className="text-[9px] text-gray-400 mt-0.5 block">
+                    <Barcode value={confirmedOrderId} height={44} />
+                    <span className="text-[9px] text-slate-400 mt-0.5 block">
                       Present at any store for 30-Day Free Exchange
                     </span>
                   </div>
 
-                  <div className="h-12 w-[1px] bg-gray-200 hidden sm:block" />
-
-                  <div className="text-center flex flex-col items-center">
-                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
-                      Mobile QR Verification
+                  <div className="text-center">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                      Digital Invoice QR
                     </span>
-                    <div className="p-1.5 bg-gray-100 rounded-lg border border-gray-200">
-                      <QrCode className="w-12 h-12 text-gray-900" />
+                    <QRCode value={`https://enjoy-mart.com/receipt/${confirmedOrderId}`} size={90} />
+                    <span className="text-[9px] text-slate-400 mt-0.5 block">
+                      Scan to track warranty
+                    </span>
+                  </div>
+                </div>
+
+                {/* Purchased Items List */}
+                <div className="py-2 space-y-2">
+                  <h5 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Purchased Merchandise:
+                  </h5>
+                  <div className="divide-y divide-slate-100">
+                    {cart.map((item) => (
+                      <div key={item.id} className="py-2 flex items-center justify-between text-xs font-semibold">
+                        <div className="flex items-center gap-2">
+                          <span className="text-slate-500">x{item.quantity}</span>
+                          <span className="text-slate-900 font-bold">{item.name}</span>
+                        </div>
+                        <span className="text-slate-900">
+                          {formatCurrency(item.price * item.quantity, currency)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Receipt Details Footer */}
+                <div className="pt-4 border-t border-slate-200 flex flex-wrap items-center justify-between text-xs text-slate-600 font-medium">
+                  <div>
+                    <div><strong>Payment Method:</strong> {paymentMethod.toUpperCase()}</div>
+                    <div><strong>Recipient:</strong> {cardHolder} ({clientEmail})</div>
+                    <div><strong>Ship to:</strong> {shippingAddress}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-black text-slate-900">
+                      Amount: {formatCurrency(finalTotalUSD, currency)}
                     </div>
-                    <span className="text-[9px] text-gray-400 mt-0.5">Scan to Track</span>
-                  </div>
-                </div>
-
-                {/* Receipt Details Breakdown */}
-                <div className="space-y-2 text-xs text-gray-700 py-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Client Name:</span>
-                    <span className="font-bold text-gray-900">{cardHolder}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Confirmation Sent To:</span>
-                    <span className="font-semibold text-gray-800">{clientEmail}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Delivery Address:</span>
-                    <span className="font-semibold text-gray-800">{shippingAddress}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Payment Method:</span>
-                    <span className="font-bold text-blue-700">
-                      {paymentMethod.toUpperCase()} (ending in {cardNumber.slice(-4)})
+                    <span className="text-emerald-700 text-[11px] font-bold">
+                      ✓ 30-Day Return Warranty Active
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Currency Exchange Applied:</span>
-                    <span className="font-medium text-gray-800">
-                      {currency} (Rate: {CURRENCIES[currency].rate})
-                    </span>
-                  </div>
-                  <div className="flex justify-between pt-2 border-t border-gray-200 text-sm font-extrabold text-gray-900">
-                    <span>Total Amount Charged:</span>
-                    <span className="text-blue-600">{formatCurrency(finalTotalUSD, currency)}</span>
-                  </div>
-                </div>
-
-                {/* 30-Day Exchange Guarantee Stamp */}
-                <div className="mt-4 pt-3 border-t border-gray-200 flex items-center gap-2 text-amber-800 text-[11px] bg-amber-50/80 p-2.5 rounded-lg border border-amber-200">
-                  <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span>
-                    <strong>Official Exchange Policy:</strong> Items in this order qualify for 30-day return or exchange. Keep this receipt or barcode handy.
-                  </span>
                 </div>
               </div>
 
-              {/* Receipt Action Buttons */}
-              <div className="flex flex-wrap gap-3 justify-center pt-2">
+              {/* Post-Checkout Action Controls */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={handlePrint}
-                  className="px-5 py-2.5 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl flex items-center gap-2 transition cursor-pointer shadow-sm"
+                  onClick={() => window.print()}
+                  className="w-full sm:w-auto px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-2xs transition cursor-pointer"
                 >
-                  <Printer className="w-4 h-4" /> Print Formal Receipt
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handlePrint}
-                  className="px-5 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-xl flex items-center gap-2 transition cursor-pointer border border-blue-200"
-                >
-                  <Download className="w-4 h-4" /> Download PDF Invoice
+                  <Printer className="w-4 h-4 text-slate-600" />
+                  <span>Print Receipt</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => {
-                    setIsCompleted(false);
-                    onClose();
+                    alert(`Invoice #${confirmedOrderId} downloaded successfully.`);
                   }}
-                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition cursor-pointer shadow-sm"
+                  className="w-full sm:w-auto px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-2xs transition cursor-pointer"
                 >
-                  Continue Shopping
+                  <Download className="w-4 h-4 text-blue-600" />
+                  <span>Download PDF Pass</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer"
+                >
+                  Done & Back to Shopping
                 </button>
               </div>
             </div>

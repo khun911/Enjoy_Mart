@@ -14,11 +14,15 @@ import {
   Sparkles,
   Coins,
   ChevronDown,
+  QrCode,
+  CreditCard,
+  Wallet,
+  Banknote,
 } from "lucide-react";
 import Image from "next/image";
 import { CURRENCIES, formatCurrency } from "@/utils/currency";
 import Barcode from "@/components/common/Barcode";
-import FormalCheckoutModal from "@/components/checkout/FormalCheckoutModal";
+import FormalCheckoutModal, { PaymentMethodType } from "@/components/checkout/FormalCheckoutModal";
 
 export default function CartDrawer() {
   const {
@@ -32,6 +36,7 @@ export default function CartDrawer() {
   } = useCart();
 
   const [currency, setCurrency] = useState("USD");
+  const [selectedPayment, setSelectedPayment] = useState<PaymentMethodType>("qr");
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   // Free shipping threshold at $50
@@ -252,37 +257,151 @@ export default function CartDrawer() {
                   </div>
                 </div>
 
-                {/* Formal Checkout Trigger Button */}
+                {/* Multiple Choice Payment Method Selection */}
+                <div className="space-y-1.5 pt-1">
+                  <div className="flex items-center justify-between text-xs font-bold text-gray-800">
+                    <span>Choose How to Pay:</span>
+                    <span className="text-[10px] text-blue-600 font-semibold">Multiple Options</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* QR Code */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPayment("qr")}
+                      className={`p-2.5 rounded-xl border flex items-center gap-2 text-left transition cursor-pointer relative ${
+                        selectedPayment === "qr"
+                          ? "border-blue-600 bg-blue-50/80 text-blue-900 font-bold shadow-xs"
+                          : "border-gray-200 hover:border-gray-300 text-gray-700 bg-gray-50/60"
+                      }`}
+                    >
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                        selectedPayment === "qr" ? "bg-blue-600 text-white" : "bg-white text-blue-600 border border-gray-200"
+                      }`}>
+                        <QrCode className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-bold leading-tight truncate">QR Code</div>
+                        <div className="text-[9px] text-gray-400 truncate">Scan to Pay</div>
+                      </div>
+                      {selectedPayment === "qr" && (
+                        <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-blue-600" />
+                      )}
+                    </button>
+
+                    {/* Visa / Card */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPayment("visa")}
+                      className={`p-2.5 rounded-xl border flex items-center gap-2 text-left transition cursor-pointer relative ${
+                        selectedPayment === "visa"
+                          ? "border-blue-600 bg-blue-50/80 text-blue-900 font-bold shadow-xs"
+                          : "border-gray-200 hover:border-gray-300 text-gray-700 bg-gray-50/60"
+                      }`}
+                    >
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                        selectedPayment === "visa" ? "bg-blue-600 text-white" : "bg-white text-blue-600 border border-gray-200"
+                      }`}>
+                        <CreditCard className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-bold leading-tight truncate">Visa / Card</div>
+                        <div className="text-[9px] text-gray-400 truncate">Credit & Debit</div>
+                      </div>
+                      {selectedPayment === "visa" && (
+                        <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-blue-600" />
+                      )}
+                    </button>
+
+                    {/* PayPal / Apple Pay */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPayment("paypal")}
+                      className={`p-2.5 rounded-xl border flex items-center gap-2 text-left transition cursor-pointer relative ${
+                        selectedPayment === "paypal"
+                          ? "border-blue-600 bg-blue-50/80 text-blue-900 font-bold shadow-xs"
+                          : "border-gray-200 hover:border-gray-300 text-gray-700 bg-gray-50/60"
+                      }`}
+                    >
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                        selectedPayment === "paypal" ? "bg-blue-600 text-white" : "bg-white text-blue-600 border border-gray-200"
+                      }`}>
+                        <Wallet className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-bold leading-tight truncate">PayPal / Pay</div>
+                        <div className="text-[9px] text-gray-400 truncate">1-Click Express</div>
+                      </div>
+                      {selectedPayment === "paypal" && (
+                        <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-blue-600" />
+                      )}
+                    </button>
+
+                    {/* Cash on Delivery */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPayment("cod")}
+                      className={`p-2.5 rounded-xl border flex items-center gap-2 text-left transition cursor-pointer relative ${
+                        selectedPayment === "cod"
+                          ? "border-blue-600 bg-blue-50/80 text-blue-900 font-bold shadow-xs"
+                          : "border-gray-200 hover:border-gray-300 text-gray-700 bg-gray-50/60"
+                      }`}
+                    >
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                        selectedPayment === "cod" ? "bg-blue-600 text-white" : "bg-white text-emerald-600 border border-gray-200"
+                      }`}>
+                        <Banknote className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-bold leading-tight truncate">Cash on Delivery</div>
+                        <div className="text-[9px] text-gray-400 truncate">Pay at Door</div>
+                      </div>
+                      {selectedPayment === "cod" && (
+                        <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-blue-600" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Dynamic Checkout Trigger Button */}
                 <button
                   type="button"
                   onClick={() => setIsCheckoutOpen(true)}
-                  className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-xl font-bold shadow-md hover:shadow-lg transition active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-3.5 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-xl font-bold shadow-md hover:shadow-lg transition active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
                 >
-                  <span>Proceed to Formal Card Checkout</span>
+                  <span>
+                    {selectedPayment === "qr" && "Pay with QR Code Scan"}
+                    {selectedPayment === "visa" && "Proceed to Visa / Card Checkout"}
+                    {selectedPayment === "paypal" && "Proceed to PayPal Express"}
+                    {selectedPayment === "cod" && "Order with Cash on Delivery"}
+                  </span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
 
-                {/* Accepted Payment Badges: Visa, Mastercard, AMEX, PayPal */}
+                {/* Accepted Payment Badges */}
                 <div className="pt-1 flex flex-col items-center gap-2">
                   <div className="flex items-center gap-2 text-[10px] text-gray-500 font-semibold">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Accepted Formal Payment Cards:</span>
+                    <span>Accepted Payment Methods:</span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs font-bold text-gray-700">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-700">
+                    <span className="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded font-bold">
+                      📱 QR Scan
+                    </span>
                     <span className="px-2 py-0.5 bg-white border border-gray-200 rounded text-blue-700 italic font-black">
                       VISA
                     </span>
                     <span className="px-2 py-0.5 bg-white border border-gray-200 rounded text-amber-600 font-black">
                       MC
                     </span>
-                    <span className="px-2 py-0.5 bg-white border border-gray-200 rounded text-blue-500 font-bold">
-                      AMEX
-                    </span>
                     <span className="px-2 py-0.5 bg-white border border-gray-200 rounded text-blue-900 font-bold">
                       PayPal
                     </span>
                     <span className="px-2 py-0.5 bg-white border border-gray-200 rounded text-gray-900 font-bold">
                        Pay
+                    </span>
+                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded font-bold">
+                      💵 COD
                     </span>
                   </div>
                 </div>
@@ -311,13 +430,14 @@ export default function CartDrawer() {
         </div>
       </div>
 
-      {/* Formal Card Checkout Modal */}
+      {/* Formal Multi-Option Checkout Modal */}
       <FormalCheckoutModal
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
         cart={cart}
         totalPrice={totalPrice}
         initialCurrency={currency}
+        initialPaymentMethod={selectedPayment}
         onOrderSuccess={() => {
           clearCart();
         }}
