@@ -27,6 +27,8 @@ import {
   Save,
   Star,
   ShieldCheck,
+  Home,
+  ChevronRight,
 } from "lucide-react";
 import { mockOrders } from "@/data/orders";
 import { initialFeedbacks } from "@/data/feedback";
@@ -355,12 +357,43 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         {/* Top Header Bar */}
         <header className="h-20 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30">
-          {/* Welcome Greeting */}
-          <div className="flex items-center gap-3">
-            <h1 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+          {/* Welcome Greeting & Quick Breadcrumbs */}
+          <div className="flex flex-col justify-center">
+            {/* Quick Breadcrumbs Path */}
+            <nav aria-label="Breadcrumb Path" className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+              <Link
+                href="/"
+                className="hover:text-blue-600 transition flex items-center gap-1 text-slate-500 font-semibold"
+              >
+                <Home className="w-3.5 h-3.5" />
+                <span>Enjoy-Mart</span>
+              </Link>
+              <ChevronRight className="w-3 h-3 text-slate-300" />
+              <button
+                type="button"
+                onClick={() => setActiveTab("Dashboard")}
+                className={`transition cursor-pointer ${
+                  activeTab === "Dashboard"
+                    ? "text-blue-600 font-bold"
+                    : "text-slate-500 hover:text-blue-600"
+                }`}
+              >
+                Admin ERP
+              </button>
+              {activeTab !== "Dashboard" && (
+                <>
+                  <ChevronRight className="w-3 h-3 text-slate-300" />
+                  <span className="font-bold text-blue-600">{activeTab}</span>
+                </>
+              )}
+            </nav>
+
+            <h1 className="text-base sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2 mt-0.5">
               <span>Hey Khun</span>
-              <span className="text-2xl">👋</span>
-              <span className="font-semibold text-slate-700">, welcome back!</span>
+              <span className="text-lg">👋</span>
+              <span className="font-semibold text-slate-500 text-xs sm:text-sm hidden sm:inline">
+                • {activeTab === "Dashboard" ? "Executive Store Overview" : `${activeTab} Management`}
+              </span>
             </h1>
           </div>
 
@@ -412,6 +445,53 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
 
         {/* Dashboard Body Container */}
         <div className="p-6 sm:p-8 space-y-6 w-full">
+          {/* Formal Interactive Breadcrumbs Card */}
+          <div className="bg-white px-5 py-3.5 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+            <nav aria-label="Breadcrumb Bar" className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+              <Link
+                href="/"
+                className="flex items-center gap-1.5 text-slate-500 hover:text-blue-600 transition font-medium"
+              >
+                <Home className="w-3.5 h-3.5 text-slate-400" />
+                <span>Storefront</span>
+              </Link>
+              <ChevronRight className="w-3 h-3 text-slate-300" />
+              <button
+                type="button"
+                onClick={() => setActiveTab("Dashboard")}
+                className={`hover:text-blue-600 transition cursor-pointer ${
+                  activeTab === "Dashboard" ? "text-slate-900 font-bold" : "text-slate-500"
+                }`}
+              >
+                Invento ERP
+              </button>
+              {activeTab !== "Dashboard" ? (
+                <>
+                  <ChevronRight className="w-3 h-3 text-slate-300" />
+                  <span className="text-blue-600 font-bold bg-blue-50 px-2.5 py-0.5 rounded-lg border border-blue-200/60 flex items-center gap-1">
+                    <span>{activeTab}</span>
+                  </span>
+                </>
+              ) : (
+                <>
+                  <ChevronRight className="w-3 h-3 text-slate-300" />
+                  <span className="text-slate-800 font-bold bg-slate-100 px-2.5 py-0.5 rounded-lg">
+                    Overview
+                  </span>
+                </>
+              )}
+            </nav>
+
+            <div className="flex items-center gap-3 text-[11px] text-slate-500">
+              <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Live Database Active
+              </span>
+              <span className="hidden md:inline text-slate-400">
+                Location: Warehouse A (Central Hub)
+              </span>
+            </div>
+          </div>
           {/* =========================================================================
              TAB: DASHBOARD (Overview with Visual Charts matching template)
              ========================================================================= */}
