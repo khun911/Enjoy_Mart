@@ -282,11 +282,11 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
 
   return (
     <div className={`flex bg-[#f3f4f8] text-slate-800 antialiased font-sans ${isModal ? "w-full h-full overflow-hidden" : "w-full min-h-screen"}`}>
-      {/* 1. LEFT SIDEBAR NAVIGATION (Matching Invento ERP Standard) */}
+      {/* 1. LEFT SIDEBAR NAVIGATION (Grouped Standard Matching Invento & Template Standard) */}
       <aside className="w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between shrink-0 hidden md:flex h-screen sticky top-0 z-20">
-        <div>
+        <div className="flex-1 flex flex-col min-h-0">
           {/* Enjoy-Mart Official Store Logo Header */}
-          <div className="h-20 px-6 flex items-center justify-between border-b border-slate-100">
+          <div className="h-20 px-6 flex items-center justify-between border-b border-slate-100 shrink-0">
             <Link href="/" className="flex items-center gap-2.5 group">
               {/* Enjoy-Mart Official E Logo */}
               <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/25 shrink-0">
@@ -304,68 +304,107 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
 
             <button
               type="button"
-              className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition"
+              className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition cursor-pointer"
               aria-label="Toggle menu"
             >
               <Menu className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Navigation Links (Matching Invento ERP Standard) */}
-          <nav className="p-4 space-y-1 text-sm font-semibold">
+          {/* Grouped Sidebar Navigation (Matching Professional Template Standard) */}
+          <nav className="flex-1 overflow-y-auto px-3.5 py-3 space-y-3.5 text-xs font-semibold">
             {[
-              { name: "Dashboard", icon: LayoutDashboard },
-              { name: "Inventory", icon: Package },
-              { name: "Warehouses", icon: Warehouse },
-              { name: "Suppliers", icon: Users },
-              { name: "Purchase Orders", icon: FileText, badge: "6" },
-              { name: "Shipments", icon: Truck },
-              { name: "Tracking", icon: MapPin },
-              { name: "Reports", icon: BarChart3 },
-              { name: "Cash Flow", icon: DollarSign },
-              { name: "Customers", icon: UserCheck },
-            ].map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.name;
+              {
+                category: "GENERAL",
+                items: [
+                  { name: "Dashboard", icon: LayoutDashboard },
+                ],
+              },
+              {
+                category: "STOCK & INVENTORY",
+                items: [
+                  { name: "Inventory", icon: Package, badge: "10" },
+                  { name: "Warehouses", icon: Warehouse, badge: "4" },
+                ],
+              },
+              {
+                category: "LOGISTICS & SUPPLY CHAIN",
+                items: [
+                  { name: "Suppliers", icon: Users },
+                  { name: "Purchase Orders", icon: FileText, badge: "6" },
+                  { name: "Shipments", icon: Truck },
+                  { name: "Tracking", icon: MapPin, badge: "Live" },
+                ],
+              },
+              {
+                category: "FINANCE & ANALYTICS",
+                items: [
+                  { name: "Reports", icon: BarChart3 },
+                  { name: "Cash Flow", icon: DollarSign },
+                ],
+              },
+              {
+                category: "COMMERCE & CLIENTS",
+                items: [
+                  { name: "Customers", icon: UserCheck, badge: "8" },
+                ],
+              },
+            ].map((section) => (
+              <div key={section.category} className="space-y-1">
+                {/* Category Section Header */}
+                <div className="px-3 pt-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 select-none">
+                  {section.category}
+                </div>
 
-              return (
-                <button
-                  key={item.name}
-                  type="button"
-                  onClick={() => setActiveTab(item.name)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
-                    isActive
-                      ? "bg-slate-100 text-slate-900 font-extrabold shadow-2xs"
-                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon
-                      className={`w-4 h-4 transition-colors ${
-                        isActive ? "text-blue-600" : "text-slate-400"
-                      }`}
-                    />
-                    <span className="text-xs">{item.name}</span>
-                  </div>
-                  {item.badge && (
-                    <span
-                      className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                        isActive
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-amber-100 text-amber-800 border border-amber-300 font-black"
-                      }`}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+                {/* Section Items */}
+                <div className="space-y-0.5">
+                  {section.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = activeTab === item.name;
+
+                    return (
+                      <button
+                        key={item.name}
+                        type="button"
+                        onClick={() => setActiveTab(item.name)}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all cursor-pointer ${
+                          isActive
+                            ? "bg-slate-100 text-slate-900 font-extrabold shadow-2xs"
+                            : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <Icon
+                            className={`w-4 h-4 transition-colors ${
+                              isActive ? "text-blue-600" : "text-slate-400"
+                            }`}
+                          />
+                          <span className="text-xs">{item.name}</span>
+                        </div>
+                        {item.badge && (
+                          <span
+                            className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                              isActive
+                                ? "bg-blue-100 text-blue-700"
+                                : item.badge === "Live"
+                                ? "bg-emerald-100 text-emerald-700 border border-emerald-300 font-black animate-pulse"
+                                : "bg-slate-100 text-slate-600 border border-slate-200/80 font-bold"
+                            }`}
+                          >
+                            {item.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </nav>
         </div>
 
         {/* Bottom Store Admin Profile Footer (With Settings Bar between navigation & account profile) */}
-        <div className="p-4 border-t border-slate-100 bg-white space-y-2">
+        <div className="p-3.5 border-t border-slate-100 bg-white space-y-2 shrink-0">
           {/* Settings Bar */}
           <button
             type="button"
@@ -382,7 +421,7 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
                   activeTab === "Settings" ? "text-blue-600" : "text-slate-400"
                 }`}
               />
-              <span className="text-xs">Settings</span>
+              <span className="text-xs">Settings & ERP Config</span>
             </div>
             {activeTab === "Settings" && (
               <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
