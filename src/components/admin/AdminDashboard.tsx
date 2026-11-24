@@ -25,13 +25,26 @@ import {
   Menu,
   Trash2,
   Save,
-  Star,
-  ShieldCheck,
   Home,
   ChevronRight,
 } from "lucide-react";
 import { mockOrders } from "@/data/orders";
-import { initialFeedbacks } from "@/data/feedback";
+import InventoryTab from "./tabs/InventoryTab";
+import WarehousesTab from "./tabs/WarehousesTab";
+import SuppliersTab from "./tabs/SuppliersTab";
+import PurchaseOrdersTab from "./tabs/PurchaseOrdersTab";
+import PurchaseOrderModal from "./tabs/PurchaseOrderModal";
+import ShipmentsTab from "./tabs/ShipmentsTab";
+import TrackingTab from "./tabs/TrackingTab";
+import ReportsTab from "./tabs/ReportsTab";
+import CashFlowTab from "./tabs/CashFlowTab";
+import CustomersTab from "./tabs/CustomersTab";
+import {
+  staticSuppliers,
+  staticPurchaseOrders,
+  staticCustomers,
+  PurchaseOrder,
+} from "@/data/adminData";
 
 // Product Inventory interface
 export interface InventoryProduct {
@@ -193,6 +206,8 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
   // Edit / Add Product State
   const [editingProduct, setEditingProduct] = useState<InventoryProduct | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedPoModal, setSelectedPoModal] = useState<PurchaseOrder | null>(null);
+  const [activeTrackingCode, setActiveTrackingCode] = useState<string>("TRK-982347102");
   const [newProduct, setNewProduct] = useState<Partial<InventoryProduct>>({
     name: "",
     sku: "",
@@ -303,16 +318,21 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
           {/* Navigation Links */}
           <nav className="p-4 space-y-1 text-sm font-semibold">
             {[
-              { name: "Dashboard", icon: LayoutDashboard },
-              { name: "Inventory", icon: Package },
-              { name: "Warehouses", icon: Warehouse },
-              { name: "Suppliers", icon: Users },
-              { name: "Purchase Orders", icon: FileText },
-              { name: "Shipments", icon: Truck },
-              { name: "Tracking", icon: MapPin },
-              { name: "Reports", icon: BarChart3 },
-              { name: "Cash Flow", icon: DollarSign },
-              { name: "Customers", icon: UserCheck },
+              { name: "Dashboard", icon: LayoutDashboard, badge: "" },
+              { name: "Inventory", icon: Package, badge: `${products.length}` },
+              { name: "Warehouses", icon: Warehouse, badge: "4" },
+              { name: "Suppliers", icon: Users, badge: `${staticSuppliers.length}` },
+              {
+                name: "Purchase Orders",
+                icon: FileText,
+                badge: `${staticPurchaseOrders.length}`,
+                highlight: true,
+              },
+              { name: "Shipments", icon: Truck, badge: `${mockOrders.length}` },
+              { name: "Tracking", icon: MapPin, badge: "Live" },
+              { name: "Reports", icon: BarChart3, badge: "2026" },
+              { name: "Cash Flow", icon: DollarSign, badge: "$288k" },
+              { name: "Customers", icon: UserCheck, badge: `${staticCustomers.length}` },
             ].map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.name;
@@ -322,14 +342,29 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
                   key={item.name}
                   type="button"
                   onClick={() => setActiveTab(item.name)}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
                     isActive
-                      ? "bg-slate-100 text-slate-900 font-bold shadow-2xs"
-                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+                      ? "bg-blue-600 text-white font-bold shadow-md shadow-blue-600/20"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 font-medium"
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? "text-blue-600" : "text-slate-400"}`} />
-                  <span>{item.name}</span>
+                  <div className="flex items-center gap-3">
+                    <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-slate-400"}`} />
+                    <span>{item.name}</span>
+                  </div>
+                  {item.badge && (
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        isActive
+                          ? "bg-white/20 text-white"
+                          : item.highlight
+                          ? "bg-amber-100 text-amber-800 border border-amber-300 font-black"
+                          : "bg-slate-200/70 text-slate-600"
+                      }`}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -913,203 +948,67 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
           )}
 
           {/* =========================================================================
-             TAB: WAREHOUSES
+             TAB: INVENTORY
              ========================================================================= */}
-          {activeTab === "Warehouses" && (
-            <div className="space-y-6">
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
-                <h3 className="text-base font-extrabold text-slate-900 mb-1">
-                  Enjoy-Mart Fulfillment Centers & Warehouses
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Network capacity, storage utilization, and logistics routing across Cambodia & Global air hubs.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[
-                  {
-                    name: "Warehouse A (Phnom Penh Central)",
-                    location: "St. 2004, Sen Sok, Phnom Penh",
-                    capacity: "88% Full",
-                    items: "5,420 Items",
-                    manager: "Sokha V.",
-                    status: "Optimal",
-                  },
-                  {
-                    name: "Warehouse B (Express Air Hub)",
-                    location: "Techo International Cargo Zone",
-                    capacity: "64% Full",
-                    items: "3,110 Items",
-                    manager: "Dara K.",
-                    status: "Optimal",
-                  },
-                  {
-                    name: "Warehouse C (Global Import Center)",
-                    location: "Sihanoukville Port Logistics",
-                    capacity: "45% Full",
-                    items: "1,890 Items",
-                    manager: "Vannak T.",
-                    status: "High Capacity",
-                  },
-                  {
-                    name: "Warehouse D (Depot Hub)",
-                    location: "National Road 4 Industrial Park",
-                    capacity: "72% Full",
-                    items: "850 Items",
-                    manager: "Chenda M.",
-                    status: "Optimal",
-                  },
-                ].map((wh, idx) => (
-                  <div key={idx} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">
-                        ACTIVE HUB
-                      </span>
-                      <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                        {wh.status}
-                      </span>
-                    </div>
-
-                    <h4 className="font-extrabold text-sm text-slate-900">{wh.name}</h4>
-                    <p className="text-xs text-slate-500 flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                      <span>{wh.location}</span>
-                    </p>
-
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold">
-                      <div>
-                        <span className="text-slate-400 text-[10px] block">Stock Units</span>
-                        <span className="text-slate-900 font-black">{wh.items}</span>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-slate-400 text-[10px] block">Storage Usage</span>
-                        <span className="text-blue-600 font-black">{wh.capacity}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          {activeTab === "Inventory" && (
+            <InventoryTab
+              products={products}
+              onEditProduct={(p) => setEditingProduct(p)}
+              onDeleteProduct={handleDeleteProduct}
+              onOpenAddModal={() => setIsAddModalOpen(true)}
+            />
           )}
 
           {/* =========================================================================
-             TAB: SHIPMENTS & ORDERS
+             TAB: WAREHOUSES
+             ========================================================================= */}
+          {activeTab === "Warehouses" && <WarehousesTab />}
+
+          {/* =========================================================================
+             TAB: SUPPLIERS
+             ========================================================================= */}
+          {activeTab === "Suppliers" && <SuppliersTab />}
+
+          {/* =========================================================================
+             TAB: PURCHASE ORDERS (Highlighted by User)
+             ========================================================================= */}
+          {activeTab === "Purchase Orders" && (
+            <PurchaseOrdersTab onViewPo={(po) => setSelectedPoModal(po)} />
+          )}
+
+          {/* =========================================================================
+             TAB: SHIPMENTS
              ========================================================================= */}
           {activeTab === "Shipments" && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                <div>
-                  <h3 className="text-base font-extrabold text-slate-900">
-                    Active Shipments & Carrier Logistics
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Real-time parcel tracking via FedEx Express, DHL, and local courier networks.
-                  </p>
-                </div>
-                <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                  {mockOrders.length} Shipments In Route
-                </span>
-              </div>
-
-              <div className="divide-y divide-slate-100">
-                {mockOrders.map((order) => (
-                  <div key={order.id} className="p-6 hover:bg-slate-50/70 transition flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                        <Truck className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-extrabold text-sm text-slate-900">Order #{order.id}</span>
-                          <span className="text-xs text-slate-400">•</span>
-                          <span className="text-xs text-slate-500 font-semibold">{order.date}</span>
-                        </div>
-                        <div className="text-xs text-slate-500 mt-0.5">
-                          Carrier: <strong className="text-slate-800">{order.carrier}</strong> | Tracking: <span className="font-mono text-blue-600 font-semibold">{order.trackingNumber}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        order.status === "Delivered"
-                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          : "bg-blue-50 text-blue-700 border border-blue-200"
-                      }`}>
-                        {order.status}
-                      </span>
-                      <span className="text-base font-black text-slate-900">
-                        ${order.total.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <ShipmentsTab
+              onTrackShipment={(trk) => {
+                setActiveTrackingCode(trk);
+                setActiveTab("Tracking");
+              }}
+            />
           )}
+
+          {/* =========================================================================
+             TAB: TRACKING
+             ========================================================================= */}
+          {activeTab === "Tracking" && (
+            <TrackingTab initialTrackingCode={activeTrackingCode} />
+          )}
+
+          {/* =========================================================================
+             TAB: REPORTS
+             ========================================================================= */}
+          {activeTab === "Reports" && <ReportsTab />}
+
+          {/* =========================================================================
+             TAB: CASH FLOW
+             ========================================================================= */}
+          {activeTab === "Cash Flow" && <CashFlowTab />}
 
           {/* =========================================================================
              TAB: CUSTOMERS & FEEDBACK WATCHTOWER
              ========================================================================= */}
-          {activeTab === "Customers" && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                <div>
-                  <h3 className="text-base font-extrabold text-slate-900">
-                    Customer Directory & Verified Feedback Watchtower
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Client satisfaction logs, ratings, and purchased merchandise reviews.
-                  </p>
-                </div>
-                <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
-                  {initialFeedbacks.length} Verified Reviews
-                </span>
-              </div>
-
-              <div className="divide-y divide-slate-100">
-                {initialFeedbacks.map((fb) => (
-                  <div key={fb.id} className="p-6 hover:bg-slate-50/70 transition space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-extrabold text-xs flex items-center justify-center">
-                          {fb.clientName.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <div className="font-extrabold text-xs text-slate-900 flex items-center gap-2">
-                            <span>{fb.clientName}</span>
-                            <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.2 rounded flex items-center gap-0.5">
-                              <ShieldCheck className="w-3 h-3" /> Verified Client
-                            </span>
-                          </div>
-                          <span className="text-[10px] text-slate-400">{fb.clientEmail}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((s) => (
-                          <Star key={s} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                        ))}
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-slate-700 leading-relaxed font-medium bg-slate-50 p-3 rounded-xl border border-slate-100">
-                      &quot;{fb.comment}&quot;
-                    </p>
-
-                    <div className="text-[11px] text-slate-500 flex items-center gap-2">
-                      <span>Reviewed Product: <strong>{fb.productName}</strong></span>
-                      <span>•</span>
-                      <span>Order #{fb.orderId}</span>
-                      <span>•</span>
-                      <span>{fb.date}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {activeTab === "Customers" && <CustomersTab />}
         </div>
       </main>
 
@@ -1319,6 +1218,12 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
           </div>
         </div>
       )}
+
+      {/* Itemized Purchase Order Invoice Modal */}
+      <PurchaseOrderModal
+        po={selectedPoModal}
+        onClose={() => setSelectedPoModal(null)}
+      />
     </div>
   );
 }
