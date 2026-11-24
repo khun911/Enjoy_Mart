@@ -28,7 +28,6 @@ import {
   Home,
   ChevronRight,
 } from "lucide-react";
-import { mockOrders } from "@/data/orders";
 import InventoryTab from "./tabs/InventoryTab";
 import WarehousesTab from "./tabs/WarehousesTab";
 import SuppliersTab from "./tabs/SuppliersTab";
@@ -39,12 +38,7 @@ import TrackingTab from "./tabs/TrackingTab";
 import ReportsTab from "./tabs/ReportsTab";
 import CashFlowTab from "./tabs/CashFlowTab";
 import CustomersTab from "./tabs/CustomersTab";
-import {
-  staticSuppliers,
-  staticPurchaseOrders,
-  staticCustomers,
-  PurchaseOrder,
-} from "@/data/adminData";
+import { PurchaseOrder } from "@/data/adminData";
 
 // Product Inventory interface
 export interface InventoryProduct {
@@ -315,24 +309,19 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
             </button>
           </div>
 
-          {/* Navigation Links */}
+          {/* Navigation Links (Matching Invento ERP Standard) */}
           <nav className="p-4 space-y-1 text-sm font-semibold">
             {[
-              { name: "Dashboard", icon: LayoutDashboard, badge: "" },
-              { name: "Inventory", icon: Package, badge: `${products.length}` },
-              { name: "Warehouses", icon: Warehouse, badge: "4" },
-              { name: "Suppliers", icon: Users, badge: `${staticSuppliers.length}` },
-              {
-                name: "Purchase Orders",
-                icon: FileText,
-                badge: `${staticPurchaseOrders.length}`,
-                highlight: true,
-              },
-              { name: "Shipments", icon: Truck, badge: `${mockOrders.length}` },
-              { name: "Tracking", icon: MapPin, badge: "Live" },
-              { name: "Reports", icon: BarChart3, badge: "2026" },
-              { name: "Cash Flow", icon: DollarSign, badge: "$288k" },
-              { name: "Customers", icon: UserCheck, badge: `${staticCustomers.length}` },
+              { name: "Dashboard", icon: LayoutDashboard },
+              { name: "Inventory", icon: Package },
+              { name: "Warehouses", icon: Warehouse },
+              { name: "Suppliers", icon: Users },
+              { name: "Purchase Orders", icon: FileText, badge: "6" },
+              { name: "Shipments", icon: Truck },
+              { name: "Tracking", icon: MapPin },
+              { name: "Reports", icon: BarChart3 },
+              { name: "Cash Flow", icon: DollarSign },
+              { name: "Customers", icon: UserCheck },
             ].map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.name;
@@ -344,22 +333,24 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
                   onClick={() => setActiveTab(item.name)}
                   className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
                     isActive
-                      ? "bg-blue-600 text-white font-bold shadow-md shadow-blue-600/20"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 font-medium"
+                      ? "bg-slate-100 text-slate-900 font-extrabold shadow-2xs"
+                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-slate-400"}`} />
-                    <span>{item.name}</span>
+                    <Icon
+                      className={`w-4 h-4 transition-colors ${
+                        isActive ? "text-blue-600" : "text-slate-400"
+                      }`}
+                    />
+                    <span className="text-xs">{item.name}</span>
                   </div>
                   {item.badge && (
                     <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
                         isActive
-                          ? "bg-white/20 text-white"
-                          : item.highlight
-                          ? "bg-amber-100 text-amber-800 border border-amber-300 font-black"
-                          : "bg-slate-200/70 text-slate-600"
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-amber-100 text-amber-800 border border-amber-300 font-black"
                       }`}
                     >
                       {item.badge}
@@ -369,14 +360,40 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
               );
             })}
           </nav>
+
+          {/* Middle: Enterprise Live Sync Status Card */}
+          <div className="mx-4 my-2 p-3.5 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 rounded-2xl border border-slate-200/80 space-y-2">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Enjoy-Mart Cloud
+              </span>
+              <span className="text-[10px] text-blue-600 font-mono font-bold bg-blue-100/70 px-1.5 py-0.5 rounded">
+                v2.6 Live
+              </span>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                <span>Storage Utilization</span>
+                <span className="font-bold text-slate-900">72%</span>
+              </div>
+              <div className="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden">
+                <div className="w-[72%] h-full bg-blue-600 rounded-full" />
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-[10px] text-slate-400 font-medium pt-1 border-t border-slate-200/60">
+              <span>4 Central Hubs Sync</span>
+              <span className="text-emerald-600 font-bold">100% SLA</span>
+            </div>
+          </div>
         </div>
 
-        {/* Bottom Store Admin Profile Card (Khun Phan) */}
-        <div className="p-4 border-t border-slate-100">
-          <div className="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-2xl flex items-center justify-between transition cursor-pointer border border-slate-200/60">
+        {/* Bottom Store Admin Profile Card (Khun Phan - Matching Invento) */}
+        <div className="p-4 pb-8 border-t border-slate-100">
+          <div className="p-2.5 bg-slate-50 hover:bg-slate-100/80 rounded-2xl flex items-center justify-between transition cursor-pointer border border-slate-200/70 shadow-2xs">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-extrabold text-xs flex items-center justify-center shadow-xs">
-                K
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-700 to-indigo-600 text-white font-extrabold text-xs flex items-center justify-center shadow-xs shrink-0">
+                KP
               </div>
               <div className="text-left">
                 <div className="text-xs font-bold text-slate-900 leading-tight">Khun Phan</div>
