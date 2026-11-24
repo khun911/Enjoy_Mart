@@ -27,6 +27,7 @@ import {
   Save,
   Home,
   ChevronRight,
+  Settings,
 } from "lucide-react";
 import InventoryTab from "./tabs/InventoryTab";
 import WarehousesTab from "./tabs/WarehousesTab";
@@ -38,6 +39,7 @@ import TrackingTab from "./tabs/TrackingTab";
 import ReportsTab from "./tabs/ReportsTab";
 import CashFlowTab from "./tabs/CashFlowTab";
 import CustomersTab from "./tabs/CustomersTab";
+import SettingsTab from "./tabs/SettingsTab";
 import { PurchaseOrder } from "@/data/adminData";
 
 // Product Inventory interface
@@ -362,8 +364,32 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
           </nav>
         </div>
 
-        {/* Bottom Store Admin Profile Footer (Stays in footer, identical alignment & width with content bar) */}
-        <div className="p-4 border-t border-slate-100 bg-white">
+        {/* Bottom Store Admin Profile Footer (With Settings Bar between navigation & account profile) */}
+        <div className="p-4 border-t border-slate-100 bg-white space-y-2">
+          {/* Settings Bar */}
+          <button
+            type="button"
+            onClick={() => setActiveTab("Settings")}
+            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
+              activeTab === "Settings"
+                ? "bg-slate-100 text-slate-900 font-extrabold shadow-2xs"
+                : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <Settings
+                className={`w-4 h-4 transition-colors ${
+                  activeTab === "Settings" ? "text-blue-600" : "text-slate-400"
+                }`}
+              />
+              <span className="text-xs">Settings</span>
+            </div>
+            {activeTab === "Settings" && (
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+            )}
+          </button>
+
+          {/* Account Profile Bar */}
           <div className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/90 rounded-xl flex items-center justify-between transition cursor-pointer border border-slate-200/70 shadow-2xs">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-8 h-8 rounded-full bg-slate-900 text-white font-black text-xs flex items-center justify-center shrink-0">
@@ -1000,6 +1026,11 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
              TAB: CUSTOMERS & FEEDBACK WATCHTOWER
              ========================================================================= */}
           {activeTab === "Customers" && <CustomersTab />}
+
+          {/* =========================================================================
+             TAB: STORE SETTINGS & ERP CONFIGURATION
+             ========================================================================= */}
+          {activeTab === "Settings" && <SettingsTab />}
         </div>
       </main>
 
