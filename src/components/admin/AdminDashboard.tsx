@@ -281,115 +281,113 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
   return (
     <div className={`flex bg-[#f3f4f8] text-slate-800 antialiased font-sans ${isModal ? "w-full h-full overflow-hidden" : "w-full min-h-screen"}`}>
       {/* 1. LEFT SIDEBAR NAVIGATION (Enjoy-Mart Official Branding matching Template) */}
-      <aside className="w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between shrink-0 hidden md:flex">
-        <div>
-          {/* Enjoy-Mart Official Store Logo Header */}
-          <div className="h-20 px-6 flex items-center justify-between border-b border-slate-100">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              {/* Enjoy-Mart Official E Logo */}
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/25 shrink-0">
-                <span className="font-extrabold text-lg tracking-tight">E</span>
-              </div>
-              <div>
-                <span className="font-extrabold text-xl text-slate-900 tracking-tight leading-none block">
-                  ENJOY<span className="text-blue-600">-MART</span>
-                </span>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                  Store ERP & Admin
-                </span>
-              </div>
-            </Link>
+      <aside className="w-64 bg-white border-r border-slate-200/80 flex flex-col shrink-0 hidden md:flex h-full overflow-y-auto">
+        {/* Enjoy-Mart Official Store Logo Header */}
+        <div className="h-20 px-6 flex items-center justify-between border-b border-slate-100 shrink-0">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            {/* Enjoy-Mart Official E Logo */}
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/25 shrink-0">
+              <span className="font-extrabold text-lg tracking-tight">E</span>
+            </div>
+            <div>
+              <span className="font-extrabold text-xl text-slate-900 tracking-tight leading-none block">
+                ENJOY<span className="text-blue-600">-MART</span>
+              </span>
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                Store ERP & Admin
+              </span>
+            </div>
+          </Link>
 
-            <button
-              type="button"
-              className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition"
-              aria-label="Toggle menu"
-            >
-              <Menu className="w-4 h-4" />
-            </button>
+          <button
+            type="button"
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition"
+            aria-label="Toggle menu"
+          >
+            <Menu className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Navigation Links (Matching Invento ERP Standard) */}
+        <nav className="p-4 space-y-1 text-sm font-semibold">
+          {[
+            { name: "Dashboard", icon: LayoutDashboard },
+            { name: "Inventory", icon: Package },
+            { name: "Warehouses", icon: Warehouse },
+            { name: "Suppliers", icon: Users },
+            { name: "Purchase Orders", icon: FileText, badge: "6" },
+            { name: "Shipments", icon: Truck },
+            { name: "Tracking", icon: MapPin },
+            { name: "Reports", icon: BarChart3 },
+            { name: "Cash Flow", icon: DollarSign },
+            { name: "Customers", icon: UserCheck },
+          ].map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.name;
+
+            return (
+              <button
+                key={item.name}
+                type="button"
+                onClick={() => setActiveTab(item.name)}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
+                  isActive
+                    ? "bg-slate-100 text-slate-900 font-extrabold shadow-2xs"
+                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon
+                    className={`w-4 h-4 transition-colors ${
+                      isActive ? "text-blue-600" : "text-slate-400"
+                    }`}
+                  />
+                  <span className="text-xs">{item.name}</span>
+                </div>
+                {item.badge && (
+                  <span
+                    className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                      isActive
+                        ? "bg-blue-100 text-blue-700"
+                        : "bg-amber-100 text-amber-800 border border-amber-300 font-black"
+                    }`}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Middle: Enterprise Live Sync Status Card */}
+        <div className="mx-4 my-2 p-3.5 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 rounded-2xl border border-slate-200/80 space-y-2 shrink-0">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              Enjoy-Mart Cloud
+            </span>
+            <span className="text-[10px] text-blue-600 font-mono font-bold bg-blue-100/70 px-1.5 py-0.5 rounded">
+              v2.6 Live
+            </span>
           </div>
-
-          {/* Navigation Links (Matching Invento ERP Standard) */}
-          <nav className="p-4 space-y-1 text-sm font-semibold">
-            {[
-              { name: "Dashboard", icon: LayoutDashboard },
-              { name: "Inventory", icon: Package },
-              { name: "Warehouses", icon: Warehouse },
-              { name: "Suppliers", icon: Users },
-              { name: "Purchase Orders", icon: FileText, badge: "6" },
-              { name: "Shipments", icon: Truck },
-              { name: "Tracking", icon: MapPin },
-              { name: "Reports", icon: BarChart3 },
-              { name: "Cash Flow", icon: DollarSign },
-              { name: "Customers", icon: UserCheck },
-            ].map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.name;
-
-              return (
-                <button
-                  key={item.name}
-                  type="button"
-                  onClick={() => setActiveTab(item.name)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
-                    isActive
-                      ? "bg-slate-100 text-slate-900 font-extrabold shadow-2xs"
-                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon
-                      className={`w-4 h-4 transition-colors ${
-                        isActive ? "text-blue-600" : "text-slate-400"
-                      }`}
-                    />
-                    <span className="text-xs">{item.name}</span>
-                  </div>
-                  {item.badge && (
-                    <span
-                      className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                        isActive
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-amber-100 text-amber-800 border border-amber-300 font-black"
-                      }`}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-
-          {/* Middle: Enterprise Live Sync Status Card */}
-          <div className="mx-4 my-2 p-3.5 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 rounded-2xl border border-slate-200/80 space-y-2">
-            <div className="flex items-center justify-between text-xs font-bold text-slate-800">
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Enjoy-Mart Cloud
-              </span>
-              <span className="text-[10px] text-blue-600 font-mono font-bold bg-blue-100/70 px-1.5 py-0.5 rounded">
-                v2.6 Live
-              </span>
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
+              <span>Storage Utilization</span>
+              <span className="font-bold text-slate-900">72%</span>
             </div>
-            <div className="space-y-1">
-              <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
-                <span>Storage Utilization</span>
-                <span className="font-bold text-slate-900">72%</span>
-              </div>
-              <div className="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden">
-                <div className="w-[72%] h-full bg-blue-600 rounded-full" />
-              </div>
+            <div className="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden">
+              <div className="w-[72%] h-full bg-blue-600 rounded-full" />
             </div>
-            <div className="flex items-center justify-between text-[10px] text-slate-400 font-medium pt-1 border-t border-slate-200/60">
-              <span>4 Central Hubs Sync</span>
-              <span className="text-emerald-600 font-bold">100% SLA</span>
-            </div>
+          </div>
+          <div className="flex items-center justify-between text-[10px] text-slate-400 font-medium pt-1 border-t border-slate-200/60">
+            <span>4 Central Hubs Sync</span>
+            <span className="text-emerald-600 font-bold">100% SLA</span>
           </div>
         </div>
 
-        {/* Bottom Store Admin Profile Card (Khun Phan - Matching Invento) */}
-        <div className="p-4 pb-8 border-t border-slate-100">
+        {/* Store Admin Profile Card - Sits closely right below the menu & sync card */}
+        <div className="p-4 pt-2 pb-6 border-t border-slate-100 shrink-0">
           <div className="p-2.5 bg-slate-50 hover:bg-slate-100/80 rounded-2xl flex items-center justify-between transition cursor-pointer border border-slate-200/70 shadow-2xs">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-700 to-indigo-600 text-white font-extrabold text-xs flex items-center justify-center shadow-xs shrink-0">
