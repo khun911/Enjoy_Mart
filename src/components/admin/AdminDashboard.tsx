@@ -18,6 +18,7 @@ import {
   Bell,
   Filter,
   ChevronDown,
+  ChevronUp,
   Edit3,
   Plus,
   ArrowLeft,
@@ -28,6 +29,9 @@ import {
   Home,
   ChevronRight,
   Settings,
+  ShieldCheck,
+  Lock,
+  Check,
 } from "lucide-react";
 import InventoryTab from "./tabs/InventoryTab";
 import WarehousesTab from "./tabs/WarehousesTab";
@@ -40,7 +44,11 @@ import ReportsTab from "./tabs/ReportsTab";
 import CashFlowTab from "./tabs/CashFlowTab";
 import CustomersTab from "./tabs/CustomersTab";
 import SettingsTab from "./tabs/SettingsTab";
-import { PurchaseOrder } from "@/data/adminData";
+import {
+  PurchaseOrder,
+  AdminRoleKey,
+  initialAdminRoles,
+} from "@/data/adminData";
 
 // Product Inventory interface
 export interface InventoryProduct {
@@ -192,6 +200,23 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ onClose, isModal = false }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<string>("Dashboard");
+  const [currentRoleKey, setCurrentRoleKey] = useState<AdminRoleKey>("super_admin");
+  const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
+  const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
+
+  const currentRole =
+    initialAdminRoles.find((r) => r.key === currentRoleKey) || initialAdminRoles[0];
+
+  const handleSwitchRole = (roleKey: AdminRoleKey) => {
+    setCurrentRoleKey(roleKey);
+    setIsRoleDropdownOpen(false);
+    const targetRole =
+      initialAdminRoles.find((r) => r.key === roleKey) || initialAdminRoles[0];
+    if (!targetRole.allowedTabs.includes(activeTab)) {
+      setActiveTab("Dashboard");
+    }
+  };
+
   const [products, setProducts] = useState<InventoryProduct[]>(enjoyMartProducts);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
@@ -311,7 +336,7 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
             </button>
           </div>
 
-          {/* Grouped Sidebar Navigation (Matching Professional Template Standard) */}
+          {/* Grouped Sidebar Navigation (Filtered by Role-Based Access Control) */}
           <nav className="flex-1 overflow-y-auto px-3.5 py-3 space-y-3.5 text-xs font-semibold">
             {[
               {
@@ -349,97 +374,222 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
                   { name: "Customers", icon: UserCheck, badge: "8" },
                 ],
               },
-            ].map((section) => (
-              <div key={section.category} className="space-y-1">
-                {/* Category Section Header */}
-                <div className="px-3 pt-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 select-none">
-                  {section.category}
+            ]
+              .map((section) => ({
+                ...section,
+                items: section.items.filter((item) =>
+                  currentRole.allowedTabs.includes(item.name)
+                ),
+              }))
+              .filter((section) => section.items.length > 0)
+              .map((section) => (
+                <div key={section.category} className="space-y-1">
+                  {/* Category Section Header */}
+                  <div className="px-3 pt-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 select-none">
+                    {section.category}
+                  </div>
+
+                  {/* Section Items */}
+                  <div className="space-y-0.5">
+                    {section.items.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = activeTab === item.name;
+
+                      return (
+                        <button
+                          key={item.name}
+                          type="button"
+                          onClick={() => setActiveTab(item.name)}
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all cursor-pointer ${
+                            isActive
+                              ? "bg-slate-100 text-slate-900 font-extrabold shadow-2xs"
+                              : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <Icon
+                              className={`w-4 h-4 transition-colors ${
+                                isActive ? "text-blue-600" : "text-slate-400"
+                              }`}
+                            />
+                            <span className="text-xs">{item.name}</span>
+                          </div>
+                          {item.badge && (
+                            <span
+                              className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                                isActive
+                                  ? "bg-blue-100 text-blue-700"
+                                  : item.badge === "Live"
+                                  ? "bg-emerald-100 text-emerald-700 border border-emerald-300 font-black animate-pulse"
+                                  : "bg-slate-100 text-slate-600 border border-slate-200/80 font-bold"
+                              }`}
+                            >
+                              {item.badge}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+          </nav>
+        </div>
+
+        {/* Bottom Store Admin Profile Footer (With Settings Bar & RBAC Role Switcher) */}
+        <div className="p-3.5 border-t border-slate-100 bg-white space-y-2 shrink-0 relative">
+          {/* Settings Bar (Gated by currentRole.allowedTabs) */}
+          {currentRole.allowedTabs.includes("Settings") ? (
+            <button
+              type="button"
+              onClick={() => setActiveTab("Settings")}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
+                activeTab === "Settings"
+                  ? "bg-slate-100 text-slate-900 font-extrabold shadow-2xs"
+                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Settings
+                  className={`w-4 h-4 transition-colors ${
+                    activeTab === "Settings" ? "text-blue-600" : "text-slate-400"
+                  }`}
+                />
+                <span className="text-xs">Settings & ERP Config</span>
+              </div>
+              {activeTab === "Settings" && (
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+              )}
+            </button>
+          ) : (
+            <div
+              className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-slate-400 bg-slate-50 border border-slate-200/60 select-none cursor-not-allowed opacity-75"
+              title="Settings requires Store Super Admin privileges"
+            >
+              <div className="flex items-center gap-2.5">
+                <Lock className="w-3.5 h-3.5 text-slate-400" />
+                <span className="text-xs font-semibold text-slate-400">Settings</span>
+              </div>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 bg-slate-200/70 px-1.5 py-0.5 rounded">
+                Locked
+              </span>
+            </div>
+          )}
+
+          {/* Account Profile Bar & Role Switcher Popup */}
+          <div className="relative">
+            {/* Floating Role Switcher Dropdown */}
+            {isRoleDropdownOpen && (
+              <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2.5 z-50 animate-in fade-in slide-in-from-bottom-2 duration-150">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100 mb-1.5 px-1">
+                  <div>
+                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+                      RBAC Security Portal
+                    </span>
+                    <span className="text-xs font-black text-slate-900">
+                      Switch Active Identity
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsRoleDropdownOpen(false)}
+                    className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
                 </div>
 
-                {/* Section Items */}
-                <div className="space-y-0.5">
-                  {section.items.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = activeTab === item.name;
-
+                {/* Role List */}
+                <div className="space-y-1 max-h-56 overflow-y-auto">
+                  {initialAdminRoles.map((role) => {
+                    const isSelected = currentRoleKey === role.key;
                     return (
                       <button
-                        key={item.name}
+                        key={role.key}
                         type="button"
-                        onClick={() => setActiveTab(item.name)}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all cursor-pointer ${
-                          isActive
-                            ? "bg-slate-100 text-slate-900 font-extrabold shadow-2xs"
-                            : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold"
+                        onClick={() => handleSwitchRole(role.key)}
+                        className={`w-full p-2 rounded-xl text-left transition flex items-center justify-between cursor-pointer ${
+                          isSelected
+                            ? "bg-blue-50/80 border border-blue-200"
+                            : "hover:bg-slate-50 border border-transparent"
                         }`}
                       >
-                        <div className="flex items-center gap-2.5">
-                          <Icon
-                            className={`w-4 h-4 transition-colors ${
-                              isActive ? "text-blue-600" : "text-slate-400"
-                            }`}
-                          />
-                          <span className="text-xs">{item.name}</span>
-                        </div>
-                        {item.badge && (
-                          <span
-                            className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                              isActive
-                                ? "bg-blue-100 text-blue-700"
-                                : item.badge === "Live"
-                                ? "bg-emerald-100 text-emerald-700 border border-emerald-300 font-black animate-pulse"
-                                : "bg-slate-100 text-slate-600 border border-slate-200/80 font-bold"
-                            }`}
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div
+                            className={`w-7 h-7 rounded-full text-xs font-black flex items-center justify-center shrink-0 ${role.avatarBg}`}
                           >
-                            {item.badge}
-                          </span>
-                        )}
+                            {role.initials}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-xs font-bold text-slate-900 truncate flex items-center gap-1">
+                              <span className="truncate">{role.title}</span>
+                              {isSelected && (
+                                <Check className="w-3 h-3 text-blue-600 shrink-0" />
+                              )}
+                            </div>
+                            <div className="text-[10px] text-slate-400 truncate">
+                              {role.userName} • {role.allowedTabs.length} tabs
+                            </div>
+                          </div>
+                        </div>
+                        <span
+                          className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md shrink-0 ${
+                            isSelected
+                              ? "bg-blue-600 text-white"
+                              : "bg-slate-100 text-slate-600"
+                          }`}
+                        >
+                          {role.badge}
+                        </span>
                       </button>
                     );
                   })}
                 </div>
-              </div>
-            ))}
-          </nav>
-        </div>
 
-        {/* Bottom Store Admin Profile Footer (With Settings Bar between navigation & account profile) */}
-        <div className="p-3.5 border-t border-slate-100 bg-white space-y-2 shrink-0">
-          {/* Settings Bar */}
-          <button
-            type="button"
-            onClick={() => setActiveTab("Settings")}
-            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
-              activeTab === "Settings"
-                ? "bg-slate-100 text-slate-900 font-extrabold shadow-2xs"
-                : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold"
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <Settings
-                className={`w-4 h-4 transition-colors ${
-                  activeTab === "Settings" ? "text-blue-600" : "text-slate-400"
-                }`}
-              />
-              <span className="text-xs">Settings & ERP Config</span>
-            </div>
-            {activeTab === "Settings" && (
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                {/* View Permission Matrix Button */}
+                <div className="pt-2 mt-1.5 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsRoleDropdownOpen(false);
+                      setIsPermissionsModalOpen(true);
+                    }}
+                    className="w-full py-2 px-2.5 bg-slate-900 hover:bg-black text-white text-[11px] font-bold rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
+                    <span>View RBAC Permission Matrix</span>
+                  </button>
+                </div>
+              </div>
             )}
-          </button>
 
-          {/* Account Profile Bar */}
-          <div className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/90 rounded-xl flex items-center justify-between transition cursor-pointer border border-slate-200/70 shadow-2xs">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-8 h-8 rounded-full bg-slate-900 text-white font-black text-xs flex items-center justify-center shrink-0">
-                KP
+            {/* Profile Card Button */}
+            <button
+              type="button"
+              onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
+              className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/90 rounded-xl flex items-center justify-between transition cursor-pointer border border-slate-200/70 shadow-2xs group text-left"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div
+                  className={`w-8 h-8 rounded-full font-black text-xs flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${currentRole.avatarBg}`}
+                >
+                  {currentRole.initials}
+                </div>
+                <div className="text-left truncate">
+                  <div className="text-xs font-bold text-slate-900 leading-tight truncate">
+                    {currentRole.userName}
+                  </div>
+                  <span className="text-[10px] text-blue-600 font-bold block truncate">
+                    {currentRole.title}
+                  </span>
+                </div>
               </div>
-              <div className="text-left truncate">
-                <div className="text-xs font-bold text-slate-900 leading-tight truncate">Khun Phan</div>
-                <span className="text-[10px] text-slate-400 font-medium">Store Super Admin</span>
-              </div>
-            </div>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              {isRoleDropdownOpen ? (
+                <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              ) : (
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              )}
+            </button>
           </div>
         </div>
       </aside>
@@ -480,7 +630,7 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
             </nav>
 
             <h1 className="text-base sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2 mt-0.5">
-              <span>Hey Khun</span>
+              <span>Hey {currentRole.userName.split(" ")[0]}</span>
               <span className="text-lg">👋</span>
               <span className="font-semibold text-slate-500 text-xs sm:text-sm hidden sm:inline">
                 • {activeTab === "Dashboard" ? "Executive Store Overview" : `${activeTab} Management`}
@@ -489,18 +639,32 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
           </div>
 
           {/* Search & Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             {/* Search Input */}
-            <div className="relative hidden sm:block w-64 lg:w-80">
+            <div className="relative hidden sm:block w-52 md:w-64 lg:w-72">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search Enjoy-Mart Products / SKU..."
+                placeholder="Search Products / SKU..."
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-9 pr-3.5 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition"
               />
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             </div>
+
+            {/* Role Indicator Button */}
+            <button
+              type="button"
+              onClick={() => setIsRoleDropdownOpen(true)}
+              className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-xl text-xs font-bold text-slate-700 border border-slate-200 transition cursor-pointer shrink-0 shadow-2xs"
+              title="Click to switch role or view permissions"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+              <span className="truncate max-w-[130px]">{currentRole.title}</span>
+              <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-white border border-slate-200 text-blue-600 font-extrabold">
+                {currentRole.badge}
+              </span>
+            </button>
 
             {/* Notification Bell */}
             <button
@@ -583,10 +747,70 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
               </span>
             </div>
           </div>
+
+          {/* PERMISSION ACCESS GUARD (Shown if activeTab is not permitted for active role) */}
+          {!currentRole.allowedTabs.includes(activeTab) && (
+            <div className="bg-white rounded-3xl border border-rose-200/90 p-8 sm:p-12 text-center max-w-2xl mx-auto shadow-sm space-y-5 my-8">
+              <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-100 shadow-2xs">
+                <Lock className="w-8 h-8" />
+              </div>
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
+                  Access Restricted
+                </span>
+                <h3 className="text-xl font-black text-slate-900">
+                  Permission Denied for {activeTab}
+                </h3>
+                <p className="text-xs text-slate-500 max-w-md mx-auto">
+                  Your active role <strong className="text-slate-800">{currentRole.title}</strong> ({currentRole.userName}) does not possess authorization to view this ERP module.
+                </p>
+              </div>
+
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-left text-xs space-y-2.5">
+                <div className="flex items-center justify-between font-bold text-slate-700">
+                  <span>Roles Authorized For {activeTab}:</span>
+                  <span className="text-[10px] text-slate-400 font-medium">RBAC Security Policy</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {initialAdminRoles
+                    .filter((r) => r.allowedTabs.includes(activeTab))
+                    .map((r) => (
+                      <button
+                        key={r.key}
+                        type="button"
+                        onClick={() => handleSwitchRole(r.key)}
+                        className="px-3 py-1.5 bg-white hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 transition cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                      >
+                        <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Switch to {r.title}</span>
+                      </button>
+                    ))}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => handleSwitchRole("super_admin")}
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition cursor-pointer shadow-xs"
+                >
+                  Switch to Super Admin (All Permissions)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("Dashboard")}
+                  className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition cursor-pointer"
+                >
+                  Return to Dashboard
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* =========================================================================
              TAB: DASHBOARD (Overview with Visual Charts matching template)
              ========================================================================= */}
-          {activeTab === "Dashboard" && (
+          {currentRole.allowedTabs.includes(activeTab) && activeTab === "Dashboard" && (
             <>
               {/* ROW 1: 4 TOP KPI CARDS (Enjoy-Mart Live Data) */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -1285,6 +1509,124 @@ export default function AdminDashboard({ onClose, isModal = false }: AdminDashbo
         po={selectedPoModal}
         onClose={() => setSelectedPoModal(null)}
       />
+
+      {/* RBAC PERMISSION MATRIX MODAL */}
+      {isPermissionsModalOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full border border-slate-200 p-6 sm:p-8 space-y-6 animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-blue-50 text-blue-600">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-900">
+                    Role-Based Access Control (RBAC) Permission Matrix
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Sidebar module access and administrative authorization mapped across all user roles.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPermissionsModalOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Matrix Table */}
+            <div className="overflow-x-auto rounded-2xl border border-slate-200 text-xs">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+                    <th className="p-3.5">ERP Module / Feature</th>
+                    {initialAdminRoles.map((role) => (
+                      <th key={role.key} className="p-3.5 text-center">
+                        <div className="font-extrabold text-slate-900">{role.title.split(" ")[0]}</div>
+                        <div className="text-[10px] text-slate-400 font-medium">({role.initials})</div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {[
+                    { module: "Dashboard & Executive KPIs", tab: "Dashboard" },
+                    { module: "Product Inventory & Stock", tab: "Inventory" },
+                    { module: "Multi-Hub Warehouses", tab: "Warehouses" },
+                    { module: "Factory Suppliers & Vendors", tab: "Suppliers" },
+                    { module: "Purchase Orders & Restock", tab: "Purchase Orders" },
+                    { module: "Fleet & Express Shipments", tab: "Shipments" },
+                    { module: "Real-Time GPS Tracking", tab: "Tracking" },
+                    { module: "Executive Reports & Analytics", tab: "Reports" },
+                    { module: "Cash Flow & Expense Ledgers", tab: "Cash Flow" },
+                    { module: "Customer Profiles & CRM", tab: "Customers" },
+                    { module: "Global Store Settings & NBC KHQR", tab: "Settings" },
+                  ].map((row) => (
+                    <tr key={row.tab} className="hover:bg-slate-50/70 transition">
+                      <td className="p-3.5 font-bold text-slate-800">
+                        {row.module}
+                      </td>
+                      {initialAdminRoles.map((role) => {
+                        const hasAccess = role.allowedTabs.includes(row.tab);
+                        return (
+                          <td key={role.key} className="p-3.5 text-center">
+                            {hasAccess ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-extrabold text-[10px] border border-emerald-200">
+                                <Check className="w-3 h-3 text-emerald-600" />
+                                <span>Allowed</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 text-slate-400 font-bold text-[10px]">
+                                <Lock className="w-3 h-3 text-slate-400" />
+                                <span>Locked</span>
+                              </span>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Quick Switch Role Inside Modal */}
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div>
+                <span className="font-extrabold text-slate-900 block">
+                  Active User Identity: {currentRole.userName}
+                </span>
+                <span className="text-slate-500 text-[11px]">
+                  Current Role: <strong className="text-blue-600">{currentRole.title}</strong> ({currentRole.allowedTabs.length} of 11 modules permitted)
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {initialAdminRoles.map((r) => (
+                  <button
+                    key={r.key}
+                    type="button"
+                    onClick={() => {
+                      handleSwitchRole(r.key);
+                      setIsPermissionsModalOpen(false);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                      currentRoleKey === r.key
+                        ? "bg-blue-600 text-white shadow-xs"
+                        : "bg-white hover:bg-slate-100 text-slate-700 border border-slate-200"
+                    }`}
+                  >
+                    {r.title.split(" ")[0]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

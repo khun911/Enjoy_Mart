@@ -906,3 +906,177 @@ export const staticCustomers: AdminCustomer[] = [
     status: "New",
   },
 ];
+
+// =========================================================================
+// ROLE-BASED ACCESS CONTROL (RBAC) & SIDEBAR PERMISSIONS
+// =========================================================================
+export type AdminRoleKey =
+  | "super_admin"
+  | "inventory_manager"
+  | "logistics_officer"
+  | "financial_auditor"
+  | "support_agent";
+
+export interface RolePermissionDetails {
+  canViewInventory: boolean;
+  canEditInventory: boolean;
+  canManageSuppliers: boolean;
+  canCreatePurchaseOrders: boolean;
+  canDispatchShipments: boolean;
+  canViewFinancials: boolean;
+  canExportReports: boolean;
+  canManageCustomers: boolean;
+  canAccessSettings: boolean;
+}
+
+export interface AdminRole {
+  key: AdminRoleKey;
+  title: string;
+  badge: string;
+  userName: string;
+  initials: string;
+  avatarBg: string;
+  description: string;
+  allowedTabs: string[];
+  permissions: RolePermissionDetails;
+}
+
+export const initialAdminRoles: AdminRole[] = [
+  {
+    key: "super_admin",
+    title: "Store Super Admin",
+    badge: "Full Access",
+    userName: "Khun Phan",
+    initials: "KP",
+    avatarBg: "bg-slate-900 text-white",
+    description: "Complete unrestricted access to all ERP modules, inventory controls, financials, and system configurations.",
+    allowedTabs: [
+      "Dashboard",
+      "Inventory",
+      "Warehouses",
+      "Suppliers",
+      "Purchase Orders",
+      "Shipments",
+      "Tracking",
+      "Reports",
+      "Cash Flow",
+      "Customers",
+      "Settings",
+    ],
+    permissions: {
+      canViewInventory: true,
+      canEditInventory: true,
+      canManageSuppliers: true,
+      canCreatePurchaseOrders: true,
+      canDispatchShipments: true,
+      canViewFinancials: true,
+      canExportReports: true,
+      canManageCustomers: true,
+      canAccessSettings: true,
+    },
+  },
+  {
+    key: "inventory_manager",
+    title: "Warehouse & Stock Manager",
+    badge: "Stock & POs",
+    userName: "Sokha Rith",
+    initials: "SR",
+    avatarBg: "bg-blue-600 text-white",
+    description: "Oversees stock counts, batch replenishment, warehouse capacities, and restock purchase orders.",
+    allowedTabs: [
+      "Dashboard",
+      "Inventory",
+      "Warehouses",
+      "Purchase Orders",
+    ],
+    permissions: {
+      canViewInventory: true,
+      canEditInventory: true,
+      canManageSuppliers: false,
+      canCreatePurchaseOrders: true,
+      canDispatchShipments: false,
+      canViewFinancials: false,
+      canExportReports: false,
+      canManageCustomers: false,
+      canAccessSettings: false,
+    },
+  },
+  {
+    key: "logistics_officer",
+    title: "Logistics & Fleet Lead",
+    badge: "Supply Chain",
+    userName: "Vannak Touch",
+    initials: "VT",
+    avatarBg: "bg-amber-600 text-white",
+    description: "Manages factory partners, express freight routes, customs documentation, and live GPS vehicle tracking.",
+    allowedTabs: [
+      "Dashboard",
+      "Suppliers",
+      "Purchase Orders",
+      "Shipments",
+      "Tracking",
+    ],
+    permissions: {
+      canViewInventory: false,
+      canEditInventory: false,
+      canManageSuppliers: true,
+      canCreatePurchaseOrders: true,
+      canDispatchShipments: true,
+      canViewFinancials: false,
+      canExportReports: false,
+      canManageCustomers: false,
+      canAccessSettings: false,
+    },
+  },
+  {
+    key: "financial_auditor",
+    title: "Financial Auditor & CFO",
+    badge: "Finance & Audit",
+    userName: "Chhaya Ly",
+    initials: "CL",
+    avatarBg: "bg-emerald-600 text-white",
+    description: "Monitors daily sales volume, profit margins, monthly cash flows, expense ledgers, and executive analytics.",
+    allowedTabs: [
+      "Dashboard",
+      "Reports",
+      "Cash Flow",
+      "Customers",
+    ],
+    permissions: {
+      canViewInventory: false,
+      canEditInventory: false,
+      canManageSuppliers: false,
+      canCreatePurchaseOrders: false,
+      canDispatchShipments: false,
+      canViewFinancials: true,
+      canExportReports: true,
+      canManageCustomers: true,
+      canAccessSettings: false,
+    },
+  },
+  {
+    key: "support_agent",
+    title: "Customer Support Specialist",
+    badge: "Customer Care",
+    userName: "Dara Bopha",
+    initials: "DB",
+    avatarBg: "bg-purple-600 text-white",
+    description: "Handles customer satisfaction, ratings reviews, client order inquiries, and live delivery status lookups.",
+    allowedTabs: [
+      "Dashboard",
+      "Tracking",
+      "Customers",
+    ],
+    permissions: {
+      canViewInventory: false,
+      canEditInventory: false,
+      canManageSuppliers: false,
+      canCreatePurchaseOrders: false,
+      canDispatchShipments: false,
+      canViewFinancials: false,
+      canExportReports: false,
+      canManageCustomers: true,
+      canAccessSettings: false,
+    },
+  },
+];

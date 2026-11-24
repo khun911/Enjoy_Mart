@@ -10,7 +10,10 @@ import {
   Bell,
   Save,
   CheckCircle2,
+  Lock,
+  Check,
 } from "lucide-react";
+import { initialAdminRoles } from "@/data/adminData";
 
 export default function SettingsTab() {
   const [activeCategory, setActiveCategory] = useState<
@@ -390,6 +393,78 @@ export default function SettingsTab() {
                   <option value="60 mins">60 Minutes</option>
                   <option value="Never">Never (Insecure)</option>
                 </select>
+              </div>
+
+              {/* RBAC Sidebar Permission Matrix Table */}
+              <div className="pt-4 border-t border-slate-200/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h5 className="font-extrabold text-sm text-slate-900">
+                      Sidebar Role & Permission Allocations
+                    </h5>
+                    <p className="text-xs text-slate-500">
+                      Controls which modules and navigation tabs are unlocked for each user role in the ERP sidebar.
+                    </p>
+                  </div>
+                  <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-xl border border-blue-200">
+                    5 Configured Roles
+                  </span>
+                </div>
+
+                <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
+                        <th className="p-3">ERP Sidebar Module</th>
+                        {initialAdminRoles.map((role) => (
+                          <th key={role.key} className="p-3 text-center">
+                            <span className="block font-black text-slate-800">{role.title.split(" ")[0]}</span>
+                            <span className="text-[9px] text-slate-400 font-medium">{role.badge}</span>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {[
+                        { name: "Dashboard & KPIs", tab: "Dashboard" },
+                        { name: "Product Inventory", tab: "Inventory" },
+                        { name: "Warehouses & Storage", tab: "Warehouses" },
+                        { name: "Factory Suppliers", tab: "Suppliers" },
+                        { name: "Purchase Orders", tab: "Purchase Orders" },
+                        { name: "Express Shipments", tab: "Shipments" },
+                        { name: "Live GPS Tracking", tab: "Tracking" },
+                        { name: "Executive Reports", tab: "Reports" },
+                        { name: "Cash Flow & Ledger", tab: "Cash Flow" },
+                        { name: "Customer CRM", tab: "Customers" },
+                        { name: "Global Store Settings", tab: "Settings" },
+                      ].map((row) => (
+                        <tr key={row.tab} className="hover:bg-slate-50/70">
+                          <td className="p-3 font-bold text-slate-800">
+                            {row.name}
+                          </td>
+                          {initialAdminRoles.map((role) => {
+                            const hasAccess = role.allowedTabs.includes(row.tab);
+                            return (
+                              <td key={role.key} className="p-3 text-center">
+                                {hasAccess ? (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-extrabold text-[10px] border border-emerald-200">
+                                    <Check className="w-2.5 h-2.5 text-emerald-600" />
+                                    <span>Allowed</span>
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-400 font-bold text-[10px]">
+                                    <Lock className="w-2.5 h-2.5 text-slate-400" />
+                                    <span>Locked</span>
+                                  </span>
+                                )}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
